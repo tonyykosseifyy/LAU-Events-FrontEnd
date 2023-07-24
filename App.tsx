@@ -10,9 +10,13 @@ import { NavigationContainer } from '@react-navigation/native';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import { createStackNavigator } from '@react-navigation/stack';
 import OnBoarding from './src/screens/OnBoarding';
-import Home from './src/screens/Home';
+import Home from './src/screens/admin/Dashboard';
 import Signin from './src/screens/Signin';
 import { AuthProvider } from './src/context/AuthContext';
+import Dashboard from './src/screens/admin/Dashboard';
+import AdminEvents from './src/screens/admin/Events';
+import AdminClubs from './src/screens/admin/Clubs';
+import AdminHome from './src/screens/admin/AdminHome';
 
 SplashScreen.preventAutoHideAsync();
 const Stack = createStackNavigator();
@@ -56,7 +60,10 @@ export default function App() {
             headerShown: false,
           }}>
           <Stack.Screen name="Onboarding" component={OnBoarding} />
-          <Stack.Screen name="Home" component={Home} />
+          <Stack.Screen name="Dashboard" component={Dashboard} />
+          <Stack.Screen name="AdminClubs" component={AdminClubs} />
+          <Stack.Screen name="AdminHome" component={AdminHome} />
+          <Stack.Screen name="AdminEvents" component={AdminEvents} />
           <Stack.Screen name="Signin" component={Signin} />
         </Stack.Navigator>
       </NavigationContainer>

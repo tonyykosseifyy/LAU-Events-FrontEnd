@@ -14,7 +14,6 @@ import { yupResolver } from '@hookform/resolvers/yup';
 import LogoNoText from '../../assets/logo_no_text.svg';
 import { ScrollView, TextInput } from 'react-native-gesture-handler';
 import { Controller, Form, useForm } from 'react-hook-form';
-import { AuthApi } from '../utils/api/auth/auth.api';
 import { useAuth } from '../context/AuthContext';
 
 type SignInForm = {
@@ -47,7 +46,7 @@ const Signin = ({ navigation }: any) => {
 
   useEffect(() => {
     if (authContext?.user) {
-      navigation.navigate('Home');
+      navigation.navigate('AdminHome');
     }
   }, [authContext]);
   const onSubmit = async (data: SignInForm) => {
