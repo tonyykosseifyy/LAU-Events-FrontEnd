@@ -15,6 +15,8 @@ import LogoNoText from '../../assets/logo_no_text.svg';
 import { ScrollView, TextInput } from 'react-native-gesture-handler';
 import { Controller, Form, useForm } from 'react-hook-form';
 import { useAuth } from '../context/AuthContext';
+import { isAxiosError, unWrapAuthError } from '../utils/errors';
+import { AxiosError } from 'axios';
 
 type SignInForm = {
   email: string;
@@ -44,17 +46,21 @@ const Signin = ({ navigation }: any) => {
     resolver: yupResolver(SignInFormSchema),
   });
 
+  const [signinError, setSigninError] = React.useState<string | null>(null);
+
   useEffect(() => {
     if (authContext?.user) {
       navigation.navigate('AdminHome');
     }
   }, [authContext]);
   const onSubmit = async (data: SignInForm) => {
-    // alert(JSON.stringify(data));
+    setSigninError(null);
     try {
       await authContext?.signIn(data);
     } catch (e) {
-      console.log(e);
+      if (isAxiosError(e)) {
+        setSigninError(unWrapAuthError(e as AxiosError));
+      }
     }
   };
   return (
@@ -71,6 +77,10 @@ const Signin = ({ navigation }: any) => {
         <TextWrapper className="text-gray pt-16">
           Please use your LAU e-mail username (only the part before @) and password.
         </TextWrapper>
+
+        {signinError && (
+          <TextWrapper className="text-error text-sm mt-3">{signinError}</TextWrapper>
+        )}
         <View className="flex flex-col w-full items-start justify-start mt-20">
           <Controller
             control={control}
