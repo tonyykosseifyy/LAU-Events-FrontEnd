@@ -8,12 +8,14 @@ import {
   TouchableHighlight,
 } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
-import React from 'react';
+import React, { useEffect } from 'react';
 import TextWrapper from '../components/TextWrapper';
 import { yupResolver } from '@hookform/resolvers/yup';
 import LogoNoText from '../../assets/logo_no_text.svg';
 import { ScrollView, TextInput } from 'react-native-gesture-handler';
 import { Controller, Form, useForm } from 'react-hook-form';
+import { AuthApi } from '../utils/api/auth/auth.api';
+import { useAuth } from '../context/AuthContext';
 
 type SignInForm = {
   email: string;
@@ -32,7 +34,8 @@ const SignInFormSchema = yup.object().shape({
     .min(8, 'Password must be at least 8 characters'),
 });
 
-const Signin = () => {
+const Signin = ({ navigation }: any) => {
+  const authContext = useAuth();
   const {
     control,
     getValues,
@@ -42,8 +45,19 @@ const Signin = () => {
     resolver: yupResolver(SignInFormSchema),
   });
 
-  const onSubmit = (data: SignInForm) => {
-    alert(JSON.stringify(data));
+  useEffect(() => {
+    if (authContext?.user) {
+      navigation.navigate('Home');
+    }
+  }, [authContext]);
+  const onSubmit = async (data: SignInForm) => {
+    // alert(JSON.stringify(data));
+    try {
+      console.log(data);
+      await authContext?.signIn(data);
+    } catch (e) {
+      console.log(e);
+    }
   };
   return (
     <SafeAreaView className="h-full w-full">
