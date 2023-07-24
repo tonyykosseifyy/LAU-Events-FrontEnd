@@ -11,6 +11,7 @@ import AsyncStorage from '@react-native-async-storage/async-storage';
 import { createStackNavigator } from '@react-navigation/stack';
 import OnBoarding from './src/screens/OnBoarding';
 import Home from './src/screens/Home';
+import Signin from './src/screens/Signin';
 
 SplashScreen.preventAutoHideAsync();
 const Stack = createStackNavigator();
@@ -48,12 +49,14 @@ export default function App() {
   console.log(firstLaunch);
   return (
     <NavigationContainer onReady={onLayoutRootView}>
-      <Stack.Navigator>
-        {firstLaunch ? (
-          <Stack.Screen name="Onboarding" component={OnBoarding} />
-        ) : (
-          <Stack.Screen name="Home" component={Home} />
-        )}
+      <Stack.Navigator
+        initialRouteName={firstLaunch ? 'Onboarding' : 'Signin'}
+        screenOptions={{
+          headerShown: false,
+        }}>
+        <Stack.Screen name="Onboarding" component={OnBoarding} />
+        <Stack.Screen name="Home" component={Home} />
+        <Stack.Screen name="Signin" component={Signin} />
       </Stack.Navigator>
     </NavigationContainer>
   );
