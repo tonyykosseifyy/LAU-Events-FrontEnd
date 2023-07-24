@@ -33,12 +33,12 @@ const AdminHome = () => {
           tabBarIcon: ({ focused }) => {
             return focused ? (
               <View className="bg-brand p-2 rounded-md flex flex-row items-center">
-                <DashboardSVG width={20} height={20} style={{ color: '#EAF2EF' }} />
+                <DashboardSVG width={20} height={20} color="#EAF2EF" />
                 <TextWrapper className="text-white text-xs pl-2">Dashboard</TextWrapper>
               </View>
             ) : (
               <View>
-                <DashboardSVG width={20} height={20} style={{ color: '#AAAAAA' }} />
+                <DashboardSVG width={20} height={20} color="#AAAAAA" />
               </View>
             );
           },
@@ -51,12 +51,12 @@ const AdminHome = () => {
           tabBarIcon: ({ focused }) => {
             return focused ? (
               <View className="bg-brand p-2 rounded-md flex flex-row items-center">
-                <EventsSVG width={20} height={20} style={{ color: '#EAF2EF' }} />
+                <EventsSVG width={20} height={20} color="#EAF2EF" />
                 <TextWrapper className="text-white text-xs pl-2">Events</TextWrapper>
               </View>
             ) : (
               <View>
-                <EventsSVG width={20} height={20} style={{ color: '#AAAAAA' }} />
+                <EventsSVG width={20} height={20} color="#AAAAAA" />
               </View>
             );
           },
@@ -69,12 +69,12 @@ const AdminHome = () => {
           tabBarIcon: ({ focused }) => {
             return focused ? (
               <View className="bg-brand p-2 rounded-md flex flex-row items-center">
-                <ClubsSVG width={20} height={20} style={{ color: '#EAF2EF' }} />
+                <ClubsSVG width={20} height={20} color="#EAF2EF" />
                 <TextWrapper className="text-white text-xs pl-2">Clubs</TextWrapper>
               </View>
             ) : (
               <View>
-                <ClubsSVG width={20} height={20} style={{ color: '#AAAAAA' }} />
+                <ClubsSVG width={20} height={20} color="#AAAAAA" />
               </View>
             );
           },
