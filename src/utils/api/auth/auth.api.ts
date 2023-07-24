@@ -15,7 +15,7 @@ export class AuthApi extends CoreApi {
   }
 
   async refresh(refreshToken: string): Promise<RefreshTokenResponse> {
-    const res = await this.client.post(`${this.path}/refreshTokenes`, {
+    const res = await this.client.post(`${this.path}/refreshToken`, {
       refreshToken,
     });
     return res.data;

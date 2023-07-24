@@ -53,7 +53,6 @@ const Signin = ({ navigation }: any) => {
   const onSubmit = async (data: SignInForm) => {
     // alert(JSON.stringify(data));
     try {
-      console.log(data);
       await authContext?.signIn(data);
     } catch (e) {
       console.log(e);

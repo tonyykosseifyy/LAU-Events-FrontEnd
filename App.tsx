@@ -47,7 +47,6 @@ export default function App() {
     return null;
   }
 
-  console.log(firstLaunch);
   return (
     <AuthProvider>
       <NavigationContainer onReady={onLayoutRootView}>
