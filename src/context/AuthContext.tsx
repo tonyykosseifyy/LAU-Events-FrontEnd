@@ -11,11 +11,17 @@ import React, {
 import { AuthApi } from '../utils/api/auth/auth.api';
 import { User } from '../models/user';
 
+const SECURE_STORE_USER_KEY = 'user';
+
+interface AuthState {
+  user: User | null;
+  authenticated: boolean | null;
+}
+
 interface AuthContextProps {
   signIn: (opts: { email: string; password: string }) => Promise<void>;
   signOut: () => void;
-  user?: User | null;
-  isLoggingIn: boolean;
+  authState: AuthState;
 }
 
 export const AuthContext = createContext<AuthContextProps | null>(null);
@@ -26,15 +32,20 @@ export function useAuth(): AuthContextProps {
     return {
       signIn: async () => {},
       signOut: () => {},
-      user: undefined,
-      isLoggingIn: false,
+      authState: {
+        user: null,
+        authenticated: null,
+      },
     };
   }
   return context;
 }
 
 export function AuthProvider({ children }: PropsWithChildren) {
-  const [user, setUser] = useState<User | null>();
+  const [authState, setAuthState] = useState<AuthState>({
+    user: null,
+    authenticated: null,
+  });
 
   const credentialsSignIn = useMemo(
     () =>
@@ -47,24 +58,40 @@ export function AuthProvider({ children }: PropsWithChildren) {
         } = await new AuthApi().login(email, password);
 
         await SecureStore.setItemAsync(
-          'user',
-          JSON.stringify({ accessToken, refreshToken, id, userEmail })
+          SECURE_STORE_USER_KEY,
+          JSON.stringify({ accessToken, refreshToken, id, email: userEmail })
         );
-        setUser({ accessToken, refreshToken, id, email: userEmail });
+        setAuthState({
+          user: { accessToken, refreshToken, id, email: userEmail },
+          authenticated: true,
+        });
       },
     []
   );
 
   const refresh = useMemo(
-    () => async (u: User) => {
-      const { accessToken } = await new AuthApi().refresh(u.refreshToken);
+    () => async (state: AuthState) => {
+      if (!state.user) return;
+
+      const { accessToken } = await new AuthApi().refresh(state.user.refreshToken);
+
       await SecureStore.setItemAsync(
-        'user',
-        JSON.stringify({ accessToken, refreshToken: u.refreshToken, id: u.id })
+        SECURE_STORE_USER_KEY,
+        JSON.stringify({
+          accessToken,
+          refreshToken: state.user.refreshToken,
+          id: state.user.id,
+          email: state.user.email,
+        })
       );
-      setUser({
-        ...u,
-        accessToken,
+      setAuthState({
+        user: {
+          accessToken,
+          refreshToken: state.user.refreshToken,
+          id: state.user.id,
+          email: state.user.email,
+        },
+        authenticated: true,
       });
     },
     []
@@ -72,28 +99,36 @@ export function AuthProvider({ children }: PropsWithChildren) {
 
   useEffect(() => {
     // Load user
-    SecureStore.getItemAsync('user').then((r) => {
+    SecureStore.getItemAsync(SECURE_STORE_USER_KEY).then((r) => {
       if (!r) {
-        setUser(null);
+        setAuthState({
+          user: null,
+          authenticated: false,
+        });
+
         return;
       }
       const u = JSON.parse(r) as User;
-      setUser(u);
+      setAuthState({
+        user: u,
+        authenticated: true,
+      });
     });
   }, []);
 
   useEffect(() => {
     // handle jwt expiry
-    if (!user) return;
+    if (!authState.user) return;
 
     let handle: NodeJS.Timeout | null = null;
-    const { exp } = jwt_decode(user.accessToken) as { exp: number };
+    const { exp } = jwt_decode(authState.user.accessToken) as { exp: number };
+
     if (+new Date() - exp * 1000 > 0) {
-      refresh(user);
+      refresh(authState);
     } else {
       handle = setTimeout(
         () => {
-          refresh(user);
+          refresh(authState);
         },
         exp * 1000 - +new Date() + 1
       );
@@ -102,18 +137,20 @@ export function AuthProvider({ children }: PropsWithChildren) {
     return () => {
       if (handle) clearTimeout(handle);
     };
-  }, [refresh, user]);
+  }, [refresh, authState]);
 
   return (
     <AuthContext.Provider
       value={{
         signIn: credentialsSignIn,
         signOut: async () => {
-          await SecureStore.deleteItemAsync('user');
-          setUser(null);
+          await SecureStore.deleteItemAsync(SECURE_STORE_USER_KEY);
+          setAuthState({
+            user: null,
+            authenticated: false,
+          });
         },
-        user,
-        isLoggingIn: user !== undefined,
+        authState,
       }}>
       {children}
     </AuthContext.Provider>
