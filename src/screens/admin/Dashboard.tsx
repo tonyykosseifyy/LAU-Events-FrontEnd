@@ -1,5 +1,5 @@
 import { View, FlatList } from 'react-native';
-import React from 'react';
+import React, { useEffect } from 'react';
 import TextWrapper from '../../components/TextWrapper';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { useAuth } from '../../context/AuthContext';
@@ -7,6 +7,10 @@ import DashboardSVG from '../../../assets/Icons/dashboard.svg';
 import clsx from 'clsx';
 import ExcelSvg from '../../../assets/Icons/excel.svg';
 import RawSvg from '../../../assets/Icons/raw.svg';
+import { EventApi } from '../../utils/api/crud/events';
+import useSession from '../../hooks/useSession';
+import { ClubApi } from '../../utils/api/crud/clubs';
+import { EventStatus } from '../../models/event';
 
 interface DashboardDataSource {
   title: string;
@@ -16,25 +20,56 @@ interface DashboardDataSource {
 
 const Dashboard = () => {
   const authContext = useAuth();
+
+  const [numberOfEvents, setNumberOfEvents] = React.useState<number>(0);
+  const [numberOfClubs, setNumberOfClubs] = React.useState<number>(0);
+  const [acceptanceRate, setAcceptanceRate] = React.useState<number>(0);
+  const [declineRate, setDeclineRate] = React.useState<number>(0);
+
+  useEffect(() => {
+    const getDashboardData = async () => {
+      if (!authContext?.authState.user?.accessToken) return;
+      const session = useSession(authContext.authState);
+
+      const eventApi = new EventApi(session);
+      const clubApi = new ClubApi(session);
+
+      try {
+        const events = await eventApi.find();
+        const clubs = await clubApi.find();
+
+        setNumberOfEvents(events.length);
+        setNumberOfClubs(clubs.length);
+
+        setAcceptanceRate(74);
+        setDeclineRate(10);
+      } catch (e) {
+        console.log(e);
+        authContext.signOut();
+      }
+    };
+    getDashboardData();
+  }, []);
+
   const [dataSource, setDataSource] = React.useState<DashboardDataSource[]>([
     {
       title: 'Events',
-      value: 469,
+      value: numberOfEvents,
       isPercentage: false,
     },
     {
       title: 'Clubs',
-      value: 24,
+      value: numberOfClubs,
       isPercentage: false,
     },
     {
       title: 'Acceptance Rate',
-      value: 74,
+      value: acceptanceRate,
       isPercentage: true,
     },
     {
       title: 'Decline Rate',
-      value: 10,
+      value: declineRate,
       isPercentage: true,
     },
   ]);
