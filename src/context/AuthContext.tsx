@@ -13,7 +13,7 @@ import { User } from '../models/user';
 
 const SECURE_STORE_USER_KEY = 'user';
 
-interface AuthState {
+export interface AuthState {
   user: User | null;
   authenticated: boolean | null;
 }
@@ -73,26 +73,34 @@ export function AuthProvider({ children }: PropsWithChildren) {
     () => async (state: AuthState) => {
       if (!state.user) return;
 
-      const { accessToken } = await new AuthApi().refresh(state.user.refreshToken);
+      try {
+        const { accessToken } = await new AuthApi().refresh(state.user.refreshToken);
 
-      await SecureStore.setItemAsync(
-        SECURE_STORE_USER_KEY,
-        JSON.stringify({
-          accessToken,
-          refreshToken: state.user.refreshToken,
-          id: state.user.id,
-          email: state.user.email,
-        })
-      );
-      setAuthState({
-        user: {
-          accessToken,
-          refreshToken: state.user.refreshToken,
-          id: state.user.id,
-          email: state.user.email,
-        },
-        authenticated: true,
-      });
+        await SecureStore.setItemAsync(
+          SECURE_STORE_USER_KEY,
+          JSON.stringify({
+            accessToken,
+            refreshToken: state.user.refreshToken,
+            id: state.user.id,
+            email: state.user.email,
+          })
+        );
+        setAuthState({
+          user: {
+            accessToken,
+            refreshToken: state.user.refreshToken,
+            id: state.user.id,
+            email: state.user.email,
+          },
+          authenticated: true,
+        });
+      } catch (e) {
+        console.log(e);
+        setAuthState({
+          user: null,
+          authenticated: false,
+        });
+      }
     },
     []
   );
