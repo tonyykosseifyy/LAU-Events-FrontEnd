@@ -36,7 +36,7 @@ const SignInFormSchema = yup.object().shape({
 });
 
 const Signin = ({ navigation }: any) => {
-  const authContext = useAuth();
+  const { authState, signIn } = useAuth();
   const {
     control,
     getValues,
@@ -49,14 +49,14 @@ const Signin = ({ navigation }: any) => {
   const [signinError, setSigninError] = React.useState<string | null>(null);
 
   useEffect(() => {
-    if (authContext?.user) {
+    if (authState.user) {
       navigation.navigate('AdminHome');
     }
-  }, [authContext]);
+  }, [authState]);
   const onSubmit = async (data: SignInForm) => {
     setSigninError(null);
     try {
-      await authContext?.signIn(data);
+      await signIn(data);
     } catch (e) {
       if (isAxiosError(e)) {
         setSigninError(unWrapAuthError(e as AxiosError));

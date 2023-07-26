@@ -8,10 +8,13 @@ import TextWrapper from '../../components/TextWrapper';
 import DashboardSVG from '../../../assets/Icons/dashboard.svg';
 import EventsSVG from '../../../assets/Icons/events.svg';
 import ClubsSVG from '../../../assets/Icons/clubs.svg';
+import { useAuth } from '../../context/AuthContext';
 
 const Tab = createBottomTabNavigator();
 
 const AdminHome = () => {
+  const { authState } = useAuth();
+
   return (
     <Tab.Navigator
       screenOptions={({ route }) => ({
