@@ -17,6 +17,26 @@ const AdminEvents = () => {
       status: EventStatus.Active,
       studentsAccepted: [],
     },
+    {
+      eventName: 'Living the AI Age',
+      eventDescription: 'A talk on the future of AI',
+      startTime: new Date(),
+      endTime: new Date(),
+      id: '1',
+      clubId: '1',
+      status: EventStatus.Active,
+      studentsAccepted: [],
+    },
+    {
+      eventName: 'Living the AI Age',
+      eventDescription: 'A talk on the future of AI',
+      startTime: new Date(),
+      endTime: new Date(),
+      id: '1',
+      clubId: '1',
+      status: EventStatus.Active,
+      studentsAccepted: [],
+    },
   ]);
   return (
     <SafeAreaView className="bg-brand-lighter w-full h-full py-10 px-6">
@@ -30,6 +50,9 @@ const AdminEvents = () => {
         <FlatList
           data={dataSource}
           className="w-full"
+          ItemSeparatorComponent={() => {
+            return <View className="h-10" />; // space between items
+          }}
           renderItem={({ item, index }) => <EventCard event={item} key={index} />}
           //Setting the number of column
           numColumns={1}
