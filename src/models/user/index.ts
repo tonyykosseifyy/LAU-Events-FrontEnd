@@ -4,3 +4,5 @@ export interface User {
   accessToken: string;
   refreshToken: string;
 }
+
+export type Uid = string | number;
