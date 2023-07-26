@@ -11,6 +11,16 @@ export interface Event {
   status: EventStatus;
 }
 
+export interface EventRequest {
+  eventName: string;
+  eventDescription: string;
+  startTime: Date;
+  endTime: Date;
+  clubId: string;
+  studentsAccepted: User[];
+  status: EventStatus;
+}
+
 export enum EventStatus {
   Active = 'Active',
   Cancelled = 'Cancelled',
