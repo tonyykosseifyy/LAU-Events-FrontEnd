@@ -1,5 +1,5 @@
 import { View, FlatList } from 'react-native';
-import React, { useEffect } from 'react';
+import React, { useEffect, useMemo } from 'react';
 import TextWrapper from '../../components/TextWrapper';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { useAuth } from '../../context/AuthContext';
@@ -51,28 +51,30 @@ const Dashboard = () => {
     getDashboardData();
   }, []);
 
-  const [dataSource, setDataSource] = React.useState<DashboardDataSource[]>([
-    {
-      title: 'Events',
-      value: numberOfEvents,
-      isPercentage: false,
-    },
-    {
-      title: 'Clubs',
-      value: numberOfClubs,
-      isPercentage: false,
-    },
-    {
-      title: 'Acceptance Rate',
-      value: acceptanceRate,
-      isPercentage: true,
-    },
-    {
-      title: 'Decline Rate',
-      value: declineRate,
-      isPercentage: true,
-    },
-  ]);
+  const dataSource = useMemo(() => {
+    return [
+      {
+        title: 'Events',
+        value: numberOfEvents,
+        isPercentage: false,
+      },
+      {
+        title: 'Clubs',
+        value: numberOfClubs,
+        isPercentage: false,
+      },
+      {
+        title: 'Acceptance Rate',
+        value: acceptanceRate,
+        isPercentage: true,
+      },
+      {
+        title: 'Decline Rate',
+        value: declineRate,
+        isPercentage: true,
+      },
+    ];
+  }, [numberOfEvents, numberOfClubs, acceptanceRate, declineRate]);
 
   const downloadDataCSV = () => {};
 
