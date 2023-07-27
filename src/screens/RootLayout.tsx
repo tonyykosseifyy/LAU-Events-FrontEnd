@@ -12,6 +12,7 @@ import OnBoarding from './OnBoarding';
 import AdminClubs from './admin/Clubs';
 import AdminEvents from './admin/Events';
 import ClubDetails from './admin/ClubDetails';
+import AddEvent from './admin/AddEvent';
 
 SplashScreen.preventAutoHideAsync();
 
@@ -73,6 +74,7 @@ export default function RootLayout() {
             <RootStack.Screen name="AdminClubs" component={AdminClubs} />
             <RootStack.Screen name="AdminEvents" component={AdminEvents} />
             <RootStack.Screen name="ClubDetails" component={ClubDetails} />
+            <RootStack.Screen name="AddEvent" component={AddEvent} />
           </>
         ) : (
           <>
