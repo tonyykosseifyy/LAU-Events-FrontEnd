@@ -11,6 +11,8 @@ import { EventApi } from '../../utils/api/crud/events';
 import useSession from '../../hooks/useSession';
 import { ClubApi } from '../../utils/api/crud/clubs';
 import { EventStatus } from '../../models/event';
+import DashboardApi from '../../utils/api/dashboard';
+import { DashboardData } from '../../models/dashboard';
 
 interface DashboardDataSource {
   title: string;
@@ -21,28 +23,29 @@ interface DashboardDataSource {
 const Dashboard = () => {
   const authContext = useAuth();
 
-  const [numberOfEvents, setNumberOfEvents] = React.useState<number>(0);
-  const [numberOfClubs, setNumberOfClubs] = React.useState<number>(0);
-  const [acceptanceRate, setAcceptanceRate] = React.useState<number>(0);
-  const [declineRate, setDeclineRate] = React.useState<number>(0);
+  const [dashboardData, setDashboardData] = React.useState<DashboardData>({
+    eventCount: 0,
+    clubCount: 0,
+    acceptanceRate: 0,
+    declineRate: 0,
+  });
 
   useEffect(() => {
     const getDashboardData = async () => {
       if (!authContext?.authState.user?.accessToken) return;
       const session = useSession(authContext.authState);
 
-      const eventApi = new EventApi(session);
-      const clubApi = new ClubApi(session);
-
+      const dashboardApi = new DashboardApi(session);
       try {
-        const events = await eventApi.find();
-        const clubs = await clubApi.find();
+        const res: any = await dashboardApi.getDashboardData();
 
-        setNumberOfEvents(events.length);
-        setNumberOfClubs(clubs.length);
+        if (!res) return;
+        // go over all entries in res, if any is null set it to 0
+        Object.keys(res).forEach((key) => {
+          if (res[key] === null) res[key] = 0;
+        });
 
-        setAcceptanceRate(74);
-        setDeclineRate(10);
+        setDashboardData(res);
       } catch (e) {
         console.log(e);
         authContext.signOut();
@@ -55,26 +58,26 @@ const Dashboard = () => {
     return [
       {
         title: 'Events',
-        value: numberOfEvents,
+        key: 'eventCount',
         isPercentage: false,
       },
       {
         title: 'Clubs',
-        value: numberOfClubs,
+        key: 'clubCount',
         isPercentage: false,
       },
       {
         title: 'Acceptance Rate',
-        value: acceptanceRate,
+        key: 'acceptanceRate',
         isPercentage: true,
       },
       {
         title: 'Decline Rate',
-        value: declineRate,
+        key: 'declineRate',
         isPercentage: true,
       },
     ];
-  }, [numberOfEvents, numberOfClubs, acceptanceRate, declineRate]);
+  }, [dashboardData]);
 
   const downloadDataCSV = () => {};
 
@@ -99,7 +102,9 @@ const Dashboard = () => {
               key={index}>
               <TextWrapper className="text-white text-xl">{item.title}</TextWrapper>
               <TextWrapper className="text-white text-2xl mt-2 text-right place-items-end">
-                {item.value}
+                {dashboardData.hasOwnProperty(item.key)
+                  ? dashboardData[item.key as keyof DashboardData]
+                  : 0}
                 {item.isPercentage ? '%' : ''}
               </TextWrapper>
             </View>
