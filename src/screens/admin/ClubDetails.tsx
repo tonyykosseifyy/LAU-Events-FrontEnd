@@ -77,7 +77,7 @@ const ClubDetails = ({ route, navigation }: any) => {
           <TextWrapper className="text-black text-2xl">Events</TextWrapper>
           <EventsSVG width={25} height={25} color="#005C4A" />
         </View>
-        {club?.events && (
+        {club?.events && club.events.length > 0 ? (
           <View className="mt-8 w-full pb-10">
             <FlatList
               numColumns={1}
@@ -88,6 +88,10 @@ const ClubDetails = ({ route, navigation }: any) => {
               renderItem={({ item, index }) => {
                 return <SmallEventCard event={item} navigation={navigation} key={index} />;
               }}></FlatList>
+          </View>
+        ) : (
+          <View className="flex flex-col justify-center items-center w-full mt-10">
+            <TextWrapper className="text-xl text-gray">No events found</TextWrapper>
           </View>
         )}
       </View>
