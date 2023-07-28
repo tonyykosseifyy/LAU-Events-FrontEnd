@@ -8,7 +8,7 @@ import { useAuth } from '../../context/AuthContext';
 import useSession from '../../hooks/useSession';
 import { EventApi } from '../../utils/api/crud/events';
 
-const AdminEvents = () => {
+const AdminEvents = ({ navigation }: any) => {
   const authContext = useAuth();
   const session = useSession(authContext.authState);
   const [dataSource, setDataSource] = useState<Event[]>([]);
@@ -34,7 +34,11 @@ const AdminEvents = () => {
     <SafeAreaView className="bg-brand-lighter w-full h-full py-10 px-6">
       <View className="flex flex-row w-full justify-between items-center">
         <TextWrapper className="text-2xl text-black">Events</TextWrapper>
-        <Pressable className="bg-brand px-4 py-2 rounded-lg">
+        <Pressable
+          className="bg-brand px-4 py-2 rounded-lg"
+          onPress={() => {
+            navigation.navigate('AddEvent');
+          }}>
           <TextWrapper className="text-white text-base">Add Event</TextWrapper>
         </Pressable>
       </View>
