@@ -9,7 +9,7 @@ import React, {
   useState,
 } from 'react';
 import { AuthApi } from '../utils/api/auth/auth.api';
-import { User } from '../models/user';
+import { User, UserRole } from '../models/user';
 
 const SECURE_STORE_USER_KEY = 'user';
 
@@ -56,13 +56,16 @@ export function AuthProvider({ children }: PropsWithChildren) {
           email: userEmail,
           id,
         } = await new AuthApi().login(email, password);
+        // decode the jwt to get the isAdmin flag
+
+        const role: UserRole = (jwt_decode(accessToken) as { role: UserRole }).role;
 
         await SecureStore.setItemAsync(
           SECURE_STORE_USER_KEY,
-          JSON.stringify({ accessToken, refreshToken, id, email: userEmail })
+          JSON.stringify({ accessToken, refreshToken, id, email: userEmail, role: role })
         );
         setAuthState({
-          user: { accessToken, refreshToken, id, email: userEmail },
+          user: { accessToken, refreshToken, id, email: userEmail, role: role },
           authenticated: true,
         });
       },
@@ -76,6 +79,8 @@ export function AuthProvider({ children }: PropsWithChildren) {
       try {
         const { accessToken } = await new AuthApi().refresh(state.user.refreshToken);
 
+        const role: UserRole = (jwt_decode(accessToken) as { role: UserRole }).role;
+
         await SecureStore.setItemAsync(
           SECURE_STORE_USER_KEY,
           JSON.stringify({
@@ -83,6 +88,7 @@ export function AuthProvider({ children }: PropsWithChildren) {
             refreshToken: state.user.refreshToken,
             id: state.user.id,
             email: state.user.email,
+            role: role,
           })
         );
         setAuthState({
@@ -91,6 +97,7 @@ export function AuthProvider({ children }: PropsWithChildren) {
             refreshToken: state.user.refreshToken,
             id: state.user.id,
             email: state.user.email,
+            role: state.user.role,
           },
           authenticated: true,
         });

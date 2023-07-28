@@ -13,6 +13,8 @@ import AdminClubs from './admin/Clubs';
 import AdminEvents from './admin/Events';
 import ClubDetails from './admin/ClubDetails';
 import AddEvent from './admin/AddEvent';
+import { UserRole } from '../models/user';
+import Home from './user/Home';
 
 SplashScreen.preventAutoHideAsync();
 
@@ -34,7 +36,8 @@ export default function RootLayout() {
     setData();
   }, []);
 
-  const { authState } = useAuth();
+  const { authState, signOut } = useAuth();
+
   const [fontsLoaded] = useFonts({
     'PT Sans': require('../../assets/fonts/PTSans-Regular.ttf'),
   });
@@ -49,33 +52,56 @@ export default function RootLayout() {
     ScreenOrientation.lockAsync(ScreenOrientation.OrientationLock.PORTRAIT_UP);
   }, []);
 
-  if (authState.user === undefined || !fontsLoaded) return null;
-
   console.log({
     firstLaunch,
     authState,
   });
+
+  const [initialRouteName, setInitialRouteName] = useState<string>('OnBoarding');
+
+  useEffect(() => {
+    if (firstLaunch === null || firstLaunch === false) {
+      if (authState.authenticated && authState.user) {
+        if (authState.user.role === UserRole.ADMIN) {
+          setInitialRouteName('AdminHome');
+        } else {
+          setInitialRouteName('Home');
+        }
+      } else {
+        setInitialRouteName('Signin');
+      }
+    } else {
+      setInitialRouteName('OnBoarding');
+    }
+  }, [authState.authenticated, authState.user, firstLaunch]);
+
+  console.log({
+    initialRouteName,
+  });
+
+  if (!fontsLoaded) {
+    return null;
+  }
+
   return (
     <NavigationContainer onReady={onLayoutRootView}>
       <RootStack.Navigator
-        initialRouteName={
-          firstLaunch === null || firstLaunch === false
-            ? authState.authenticated
-              ? 'AdminHome'
-              : 'Signin'
-            : 'OnBoarding'
-        }
+        initialRouteName={initialRouteName}
         screenOptions={{
           headerShown: false,
         }}>
         {authState.authenticated ? (
-          <>
-            <RootStack.Screen name="AdminHome" component={AdminHome} />
-            <RootStack.Screen name="AdminClubs" component={AdminClubs} />
-            <RootStack.Screen name="AdminEvents" component={AdminEvents} />
-            <RootStack.Screen name="ClubDetails" component={ClubDetails} />
-            <RootStack.Screen name="AddEvent" component={AddEvent} />
-          </>
+          authState.user && authState.user.role === UserRole.ADMIN ? (
+            <>
+              <RootStack.Screen name="AdminHome" component={AdminHome} />
+              <RootStack.Screen name="AdminClubs" component={AdminClubs} />
+              <RootStack.Screen name="AdminEvents" component={AdminEvents} />
+              <RootStack.Screen name="ClubDetails" component={ClubDetails} />
+              <RootStack.Screen name="AddEvent" component={AddEvent} />
+            </>
+          ) : (
+            <RootStack.Screen name="Home" component={Home} />
+          )
         ) : (
           <>
             <RootStack.Screen name="Signin" component={Signin} />
