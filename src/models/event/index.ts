@@ -6,9 +6,11 @@ export interface Event {
   eventDescription: string;
   startTime: Date;
   endTime: Date;
-  clubId: string;
-  studentsAccepted: User[];
+  clubId?: string;
+  studentsAccepted?: User[];
   status: EventStatus;
+  createdAt: string;
+  updatedAt: string;
 }
 
 export interface EventRequest {
@@ -16,8 +18,7 @@ export interface EventRequest {
   eventDescription: string;
   startTime: Date;
   endTime: Date;
-  clubId: string;
-  studentsAccepted: User[];
+  clubIds: string[];
   status: EventStatus;
 }
 
