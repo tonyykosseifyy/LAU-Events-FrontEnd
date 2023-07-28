@@ -9,11 +9,11 @@ import React, {
   useState,
 } from 'react';
 import { AuthApi } from '../utils/api/auth/auth.api';
-import { User } from '../models/user';
+import { User, UserRole } from '../models/user';
 
 const SECURE_STORE_USER_KEY = 'user';
 
-interface AuthState {
+export interface AuthState {
   user: User | null;
   authenticated: boolean | null;
 }
@@ -56,13 +56,16 @@ export function AuthProvider({ children }: PropsWithChildren) {
           email: userEmail,
           id,
         } = await new AuthApi().login(email, password);
+        // decode the jwt to get the isAdmin flag
+
+        const role: UserRole = (jwt_decode(accessToken) as { role: UserRole }).role;
 
         await SecureStore.setItemAsync(
           SECURE_STORE_USER_KEY,
-          JSON.stringify({ accessToken, refreshToken, id, email: userEmail })
+          JSON.stringify({ accessToken, refreshToken, id, email: userEmail, role: role })
         );
         setAuthState({
-          user: { accessToken, refreshToken, id, email: userEmail },
+          user: { accessToken, refreshToken, id, email: userEmail, role: role },
           authenticated: true,
         });
       },
@@ -73,26 +76,38 @@ export function AuthProvider({ children }: PropsWithChildren) {
     () => async (state: AuthState) => {
       if (!state.user) return;
 
-      const { accessToken } = await new AuthApi().refresh(state.user.refreshToken);
+      try {
+        const { accessToken } = await new AuthApi().refresh(state.user.refreshToken);
 
-      await SecureStore.setItemAsync(
-        SECURE_STORE_USER_KEY,
-        JSON.stringify({
-          accessToken,
-          refreshToken: state.user.refreshToken,
-          id: state.user.id,
-          email: state.user.email,
-        })
-      );
-      setAuthState({
-        user: {
-          accessToken,
-          refreshToken: state.user.refreshToken,
-          id: state.user.id,
-          email: state.user.email,
-        },
-        authenticated: true,
-      });
+        const role: UserRole = (jwt_decode(accessToken) as { role: UserRole }).role;
+
+        await SecureStore.setItemAsync(
+          SECURE_STORE_USER_KEY,
+          JSON.stringify({
+            accessToken,
+            refreshToken: state.user.refreshToken,
+            id: state.user.id,
+            email: state.user.email,
+            role: role,
+          })
+        );
+        setAuthState({
+          user: {
+            accessToken,
+            refreshToken: state.user.refreshToken,
+            id: state.user.id,
+            email: state.user.email,
+            role: state.user.role,
+          },
+          authenticated: true,
+        });
+      } catch (e) {
+        console.log(e);
+        setAuthState({
+          user: null,
+          authenticated: false,
+        });
+      }
     },
     []
   );

@@ -3,4 +3,12 @@ export interface User {
   email: string;
   accessToken: string;
   refreshToken: string;
+  role: UserRole;
+}
+
+export type Uid = string | number;
+
+export enum UserRole {
+  ADMIN = 'Admin',
+  USER = 'User',
 }

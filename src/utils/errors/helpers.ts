@@ -17,7 +17,7 @@ export function unWrapAuthError(error: AxiosError<{} | unknown> | undefined): st
     return error.message;
   }
 
-  if (error.response.status === 400) {
+  if (error.response.status === 401) {
     return 'Invalid credentials, please try again';
   }
 

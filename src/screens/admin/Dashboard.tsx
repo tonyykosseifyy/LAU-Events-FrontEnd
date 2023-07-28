@@ -1,5 +1,5 @@
 import { View, FlatList } from 'react-native';
-import React from 'react';
+import React, { useEffect, useMemo } from 'react';
 import TextWrapper from '../../components/TextWrapper';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { useAuth } from '../../context/AuthContext';
@@ -7,6 +7,12 @@ import DashboardSVG from '../../../assets/Icons/dashboard.svg';
 import clsx from 'clsx';
 import ExcelSvg from '../../../assets/Icons/excel.svg';
 import RawSvg from '../../../assets/Icons/raw.svg';
+import { EventApi } from '../../utils/api/crud/events';
+import useSession from '../../hooks/useSession';
+import { ClubApi } from '../../utils/api/crud/clubs';
+import { EventStatus } from '../../models/event';
+import DashboardApi from '../../utils/api/dashboard';
+import { DashboardData } from '../../models/dashboard';
 
 interface DashboardDataSource {
   title: string;
@@ -16,28 +22,62 @@ interface DashboardDataSource {
 
 const Dashboard = () => {
   const authContext = useAuth();
-  const [dataSource, setDataSource] = React.useState<DashboardDataSource[]>([
-    {
-      title: 'Events',
-      value: 469,
-      isPercentage: false,
-    },
-    {
-      title: 'Clubs',
-      value: 24,
-      isPercentage: false,
-    },
-    {
-      title: 'Acceptance Rate',
-      value: 74,
-      isPercentage: true,
-    },
-    {
-      title: 'Decline Rate',
-      value: 10,
-      isPercentage: true,
-    },
-  ]);
+
+  const [dashboardData, setDashboardData] = React.useState<DashboardData>({
+    eventCount: 0,
+    clubCount: 0,
+    acceptanceRate: 0,
+    declineRate: 0,
+  });
+
+  useEffect(() => {
+    const getDashboardData = async () => {
+      if (!authContext?.authState.user?.accessToken) return;
+      const session = useSession(authContext.authState);
+
+      const dashboardApi = new DashboardApi(session);
+      try {
+        const res: any = await dashboardApi.getDashboardData();
+
+        if (!res) return;
+        // go over all entries in res, if any is null set it to 0
+        Object.keys(res).forEach((key) => {
+          if (res[key] === null) res[key] = 0;
+        });
+
+        setDashboardData(res);
+      } catch (e) {
+        console.log(e);
+        authContext.signOut();
+      }
+    };
+    getDashboardData();
+  }, []);
+
+  const dataSource = useMemo(() => {
+    return [
+      {
+        title: 'Events',
+        key: 'eventCount',
+        isPercentage: false,
+      },
+      {
+        title: 'Clubs',
+        key: 'clubCount',
+        isPercentage: false,
+      },
+      {
+        title: 'Acceptance Rate',
+        key: 'acceptanceRate',
+        isPercentage: true,
+      },
+      {
+        title: 'Decline Rate',
+        key: 'declineRate',
+        isPercentage: true,
+      },
+    ];
+  }, [dashboardData]);
 
   const downloadDataCSV = () => {};
 
@@ -62,7 +102,9 @@ const Dashboard = () => {
               key={index}>
               <TextWrapper className="text-white text-xl">{item.title}</TextWrapper>
               <TextWrapper className="text-white text-2xl mt-2 text-right place-items-end">
-                {item.value}
+                {dashboardData.hasOwnProperty(item.key)
+                  ? dashboardData[item.key as keyof DashboardData]
+                  : 0}
                 {item.isPercentage ? '%' : ''}
               </TextWrapper>
             </View>
