@@ -7,4 +7,8 @@ export class EventApi extends CrudApi<Event, EventRequest> {
   constructor(param?: ApiParam) {
     super(param);
   }
+
+  async findOneWithDetails(id: string) {
+    return (await this.client.get<Event>(`${this.path}/${id}/details`)).data;
+  }
 }

@@ -15,6 +15,7 @@ import ClubDetails from './admin/ClubDetails';
 import AddEvent from './admin/AddEvent';
 import { UserRole } from '../models/user';
 import Home from './user/Home';
+import EventDetails from './admin/EventDetails';
 
 SplashScreen.preventAutoHideAsync();
 
@@ -75,10 +76,6 @@ export default function RootLayout() {
     }
   }, [authState.authenticated, authState.user, firstLaunch]);
 
-  console.log({
-    initialRouteName,
-  });
-
   if (!fontsLoaded) {
     return null;
   }
@@ -98,6 +95,7 @@ export default function RootLayout() {
               <RootStack.Screen name="AdminEvents" component={AdminEvents} />
               <RootStack.Screen name="ClubDetails" component={ClubDetails} />
               <RootStack.Screen name="AddEvent" component={AddEvent} />
+              <RootStack.Screen name="EventDetails" component={EventDetails} />
             </>
           ) : (
             <RootStack.Screen name="Home" component={Home} />

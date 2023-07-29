@@ -20,7 +20,6 @@ const AdminEvents = ({ navigation }: any) => {
       try {
         const eventApi = new EventApi(session);
         const res = await eventApi.find();
-        console.log(res);
         setDataSource(res);
       } catch (e) {
         console.log(e);
@@ -50,7 +49,9 @@ const AdminEvents = ({ navigation }: any) => {
             ItemSeparatorComponent={() => {
               return <View className="h-10" />; // space between items
             }}
-            renderItem={({ item, index }) => <EventCard event={item} key={index} />}
+            renderItem={({ item, index }) => (
+              <EventCard event={item} key={index} navigation={navigation} />
+            )}
             //Setting the number of column
             numColumns={1}
             keyExtractor={(item, index) => index + ''}

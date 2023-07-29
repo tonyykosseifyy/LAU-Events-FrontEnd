@@ -7,7 +7,7 @@ import dayjs from 'dayjs';
 import ArrowRightSVG from '../../assets/Icons/arrow_right.svg';
 
 const event_placeholder = require('../../assets/event_image_placeholder.png');
-const EventCard: FC<{ event: Event }> = ({ event }) => {
+const EventCard: FC<{ event: Event; navigation: any }> = ({ event, navigation }) => {
   return (
     <View className="w-full bg-white rounded-lg h-72 py-3 px-4">
       <View className="w-full h-[81%]">
@@ -40,7 +40,9 @@ const EventCard: FC<{ event: Event }> = ({ event }) => {
         </View>
         <Pressable
           className="bg-brand py-2 px-3 rounded-2xl flex justify-between items-center flex-row"
-          onPress={() => {}}>
+          onPress={() => {
+            navigation.navigate('EventDetails', { eventId: event.id });
+          }}>
           <TextWrapper className="text-white">Details</TextWrapper>
           <View className="w-5 h-1 bg-brand"></View>
           <ArrowRightSVG width={12} height={12} color="#fff" />

@@ -23,7 +23,6 @@ const AdminClubs = ({ navigation }: any) => {
       try {
         const clubApi = new ClubApi(session);
         const res = await clubApi.find();
-        console.log(res);
         setClubs(res);
       } catch (e) {
         console.log(e);
@@ -46,7 +45,6 @@ const AdminClubs = ({ navigation }: any) => {
     try {
       const clubApi = new ClubApi(session);
       const res = await clubApi.create(newClub);
-      console.log(res);
       setClubs([...clubs, res]);
       setModalVisible(false);
       setClubName('');
