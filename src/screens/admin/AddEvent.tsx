@@ -262,7 +262,11 @@ const AddEvent = ({ navigation }: any) => {
           />
         </View>
         <View className="flex flex-row w-full justify-between items-center mt-10">
-          <Pressable className="bg-gray/40 px-6 py-2 rounded-lg" onPress={() => {}}>
+          <Pressable
+            className="bg-gray/40 px-6 py-2 rounded-lg"
+            onPress={() => {
+              navigation.goBack();
+            }}>
             <TextWrapper className="text-black text-base">Cancel</TextWrapper>
           </Pressable>
           <View className="w-4" />
