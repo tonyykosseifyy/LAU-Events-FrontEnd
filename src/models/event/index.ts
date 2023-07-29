@@ -1,3 +1,4 @@
+import { Club } from '../club';
 import { User } from '../user';
 
 export interface Event {
@@ -7,7 +8,8 @@ export interface Event {
   startTime: Date;
   endTime: Date;
   clubId?: string;
-  studentsAccepted?: User[];
+  Clubs?: Club[];
+  Users?: User[];
   status: EventStatus;
   createdAt: string;
   updatedAt: string;
