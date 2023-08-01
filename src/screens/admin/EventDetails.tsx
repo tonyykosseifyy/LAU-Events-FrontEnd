@@ -83,7 +83,7 @@ const EventDetails = ({ route, navigation }: any) => {
         </View>
         <View className="flex flex-row w-full justify-between items-center mt-2">
           <TextWrapper className="text-black font-bold text-base">Decline Count</TextWrapper>
-          <TextWrapper>4</TextWrapper>
+          <TextWrapper>{event?.declinedUsers ?? 0}</TextWrapper>
         </View>
       </View>
 
