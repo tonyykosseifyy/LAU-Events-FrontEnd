@@ -1,9 +1,9 @@
 export interface User {
   id: string;
   email: string;
-  accessToken: string;
-  refreshToken: string;
-  role: UserRole;
+  accessToken?: string;
+  refreshToken?: string;
+  role?: UserRole;
 }
 
 export type Uid = string | number;

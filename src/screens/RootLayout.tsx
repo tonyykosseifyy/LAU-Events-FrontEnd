@@ -16,6 +16,7 @@ import AddEvent from './admin/AddEvent';
 import { UserRole } from '../models/user';
 import Home from './user/Home';
 import EventDetails from './admin/EventDetails';
+import Verification from './Verification';
 
 SplashScreen.preventAutoHideAsync();
 
@@ -102,6 +103,7 @@ export default function RootLayout() {
           )
         ) : (
           <>
+            <RootStack.Screen name="Verification" component={Verification} />
             <RootStack.Screen name="Signin" component={Signin} />
             <RootStack.Screen name="OnBoarding" component={OnBoarding} />
           </>
