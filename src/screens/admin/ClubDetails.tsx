@@ -1,4 +1,4 @@
-import { View, Text, ImageBackground, Pressable } from 'react-native';
+import { View, Text, ImageBackground, Pressable, Switch } from 'react-native';
 import React, { useEffect, useState } from 'react';
 import { Club } from '../../models/club';
 import { SafeAreaView } from 'react-native-safe-area-context';
@@ -13,6 +13,7 @@ import { FlatList } from 'react-native-gesture-handler';
 import { useAuth } from '../../context/AuthContext';
 import useSession from '../../hooks/useSession';
 import { ClubApi } from '../../utils/api/crud/clubs';
+import clsx from 'clsx';
 
 const event_placeholder = require('../../../assets/event_image_placeholder.png');
 
@@ -22,6 +23,9 @@ const ClubDetails = ({ route, navigation }: any) => {
   const session = useSession(authContext.authState);
 
   const [club, setClub] = useState<Club | null>(null);
+
+  const [isEnabled, setIsEnabled] = useState(false);
+  const toggleSwitch = () => setIsEnabled((previousState) => !previousState);
 
   useEffect(() => {
     if (!session || !clubId) {
@@ -71,7 +75,19 @@ const ClubDetails = ({ route, navigation }: any) => {
           <TextWrapper className="text-sm text-gray">Added on: {club?.createdAt}</TextWrapper>
         </View>
       </View>
-
+      <View className="w-full flex justify-end  items-center flex-row">
+        <TextWrapper
+          className={clsx('text-base text-black mr-2', isEnabled ? 'text-green' : 'text-red')}>
+          {isEnabled ? 'Inactive' : 'Active'}
+        </TextWrapper>
+        <Switch
+          trackColor={{ false: '#006E58', true: '#E11D48' }}
+          thumbColor={isEnabled ? '#F6F6F6' : '#F6F6F6'}
+          ios_backgroundColor="#3e3e3e"
+          onValueChange={toggleSwitch}
+          value={isEnabled}
+        />
+      </View>
       <View className="mt-8 w-full pr-4">
         <View className="flex flex-row justify-between items-center w-full ">
           <TextWrapper className="text-black text-2xl">Events</TextWrapper>

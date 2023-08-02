@@ -21,7 +21,6 @@ const AdminEvents = ({ navigation }: any) => {
         const eventApi = new EventApi(session);
         const res = await eventApi.find();
         setDataSource(res);
-        console.log(res);
       } catch (e) {
         console.log(e);
         authContext.signOut();

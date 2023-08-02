@@ -142,7 +142,6 @@ export function AuthProvider({ children }: PropsWithChildren) {
   const verify = useMemo(
     () => async (code: string) => {
       // this should exists because we need the userId to send the verification request
-      console.log(authState.user);
       if (!authState.user) return;
 
       try {
@@ -151,7 +150,6 @@ export function AuthProvider({ children }: PropsWithChildren) {
           throw new Error('User not found in secure store');
         }
         const storedUser = JSON.parse(stored) as User;
-        console.log(storedUser);
         const { accessToken, email, refreshToken, id } = await new AuthApi().verify(
           code,
           storedUser.id.toString()

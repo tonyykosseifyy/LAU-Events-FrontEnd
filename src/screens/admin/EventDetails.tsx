@@ -38,7 +38,6 @@ const EventDetails = ({ route, navigation }: any) => {
     }
   }, []);
 
-  console.log(event);
   return (
     <SafeAreaView className="w-full h-full bg-brand-lighter relative py-10 px-8">
       <View className="absolute top-0 left-0">
