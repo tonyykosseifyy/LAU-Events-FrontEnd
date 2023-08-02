@@ -36,4 +36,8 @@ export default class CrudApi<Model, RequestModel> extends CoreApi {
   async delete(id: Uid): Promise<Model> {
     return (await this.client.delete<Model>(`${this.path}/${id}`)).data;
   }
+
+  async deleteAll(): Promise<void> {
+    await this.client.delete<void>(`${this.path}`);
+  }
 }

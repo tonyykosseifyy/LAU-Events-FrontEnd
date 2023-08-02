@@ -1,4 +1,4 @@
-import { View, FlatList } from 'react-native';
+import { View, FlatList, Pressable, Modal } from 'react-native';
 import React, { useEffect, useMemo } from 'react';
 import TextWrapper from '../../components/TextWrapper';
 import { SafeAreaView } from 'react-native-safe-area-context';
@@ -83,12 +83,54 @@ const Dashboard = () => {
 
   const downloadDataRaw = () => {};
 
+  const [modalVisible, setModalVisible] = React.useState(false);
+
   return (
     <SafeAreaView className="bg-brand-lighter w-full h-full py-10 px-6">
       <View className="flex flex-row w-full justify-between items-center">
         <TextWrapper className="text-2xl text-black">Dashboard</TextWrapper>
         <DashboardSVG width={20} height={20} color="#006E58" />
       </View>
+      <Modal
+        animationType="slide"
+        transparent={true}
+        visible={modalVisible}
+        onRequestClose={() => {
+          setModalVisible(!modalVisible);
+        }}>
+        <View className="w-full h-full flex justify-center items-center bg-brand/20">
+          <View className="bg-brand-lighter w-5/6 h-72 rounded-lg py-4 px-6 flex flex-col justify-between">
+            <View className="flex flex-col">
+              <View className="flex flex-row justify-between items-center w-full">
+                <TextWrapper className="text-xl text-black">
+                  ⚠️ Are you sure you want to{' '}
+                  <TextWrapper className="text-error">delete all</TextWrapper> the events in the
+                  database? ⚠️
+                </TextWrapper>
+              </View>
+            </View>
+            <View className="flex flex-row w-full justify-end items-center">
+              <Pressable
+                className="bg-gray/40 px-6 py-2 rounded-lg"
+                onPress={() => {
+                  setModalVisible(false);
+                }}>
+                <TextWrapper className="text-black text-base">Cancel</TextWrapper>
+              </Pressable>
+              <View className="w-4" />
+              <Pressable
+                className="bg-error px-8 py-2 rounded-lg"
+                onPress={() => {
+                  const eventApi = new EventApi(useSession(authContext.authState));
+                  eventApi.deleteAll();
+                  setModalVisible(false);
+                }}>
+                <TextWrapper className="text-white text-base">DELETE ALL</TextWrapper>
+              </Pressable>
+            </View>
+          </View>
+        </View>
+      </Modal>
       <View className="h-fit w-full mt-14">
         <FlatList
           data={dataSource}
@@ -136,6 +178,15 @@ const Dashboard = () => {
             Raw format
           </TextWrapper>
         </View>
+      </View>
+      <View className="w-full mt-2 flex justify-end flex-row">
+        <Pressable
+          className="bg-error/20 px-6 py-2 rounded-lg"
+          onPress={() => {
+            setModalVisible(true);
+          }}>
+          <TextWrapper className="text-black text-base">Reset All</TextWrapper>
+        </Pressable>
       </View>
     </SafeAreaView>
   );
