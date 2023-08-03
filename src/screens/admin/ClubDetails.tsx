@@ -1,6 +1,6 @@
 import { View, Text, ImageBackground, Pressable, Switch } from 'react-native';
 import React, { useEffect, useState } from 'react';
-import { Club } from '../../models/club';
+import { Club, ClubStatus } from '../../models/club';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import TextWrapper from '../../components/TextWrapper';
 import dayjs from 'dayjs';
@@ -25,7 +25,17 @@ const ClubDetails = ({ route, navigation }: any) => {
   const [club, setClub] = useState<Club | null>(null);
 
   const [isEnabled, setIsEnabled] = useState(false);
-  const toggleSwitch = () => setIsEnabled((previousState) => !previousState);
+  const toggleSwitch = async () => {
+    try {
+      await new ClubApi(session).update(clubId, {
+        status: isEnabled ? ClubStatus.INACTIVE : ClubStatus.ACTIVE,
+      });
+
+      setIsEnabled((previousState) => !previousState);
+    } catch (e) {
+      console.log(e);
+    }
+  };
 
   useEffect(() => {
     if (!session || !clubId) {
@@ -37,6 +47,7 @@ const ClubDetails = ({ route, navigation }: any) => {
       const getClub = async () => {
         const res = await new ClubApi(session).findOne(clubId);
         setClub(res);
+        setIsEnabled(res?.status === ClubStatus.ACTIVE);
       };
       getClub();
     } catch (e) {
