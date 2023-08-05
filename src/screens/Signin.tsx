@@ -18,6 +18,7 @@ import { useAuth } from '../context/AuthContext';
 import { isAxiosError, unWrapAuthError } from '../utils/errors';
 import { AxiosError } from 'axios';
 import { UserRole } from '../models/user';
+import { API_URL } from '@env';
 
 type SignInForm = {
   email: string;

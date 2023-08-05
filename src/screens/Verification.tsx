@@ -47,6 +47,9 @@ const Verification = ({ navigation }: any) => {
     } else if (authState.user && authState.user.role === UserRole.USER) {
       navigation.navigate('Home');
     }
+    if (!authState.isVerified || authState.isVerified === true) {
+      navigation.navigate('Signin');
+    }
   }, [authState]);
 
   const onSubmit = async (data: VerificationForm) => {

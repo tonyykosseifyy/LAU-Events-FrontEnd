@@ -103,8 +103,8 @@ export default function RootLayout() {
           )
         ) : (
           <>
-            <RootStack.Screen name="Verification" component={Verification} />
             <RootStack.Screen name="Signin" component={Signin} />
+            <RootStack.Screen name="Verification" component={Verification} />
             <RootStack.Screen name="OnBoarding" component={OnBoarding} />
           </>
         )}
