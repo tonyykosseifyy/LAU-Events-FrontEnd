@@ -2,7 +2,7 @@ import { View, Text, Pressable, FlatList, Modal, Alert } from 'react-native';
 import React, { useEffect, useState } from 'react';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import TextWrapper from '../../components/TextWrapper';
-import { Club, ClubRequest } from '../../models/club';
+import { Club, ClubRequest, ClubStatus } from '../../models/club';
 import ClubCard from '../../components/ClubCard';
 import { TextInput } from 'react-native-gesture-handler';
 import { ClubApi } from '../../utils/api/crud/clubs';
@@ -40,6 +40,7 @@ const AdminClubs = ({ navigation }: any) => {
 
     const newClub: ClubRequest = {
       clubName: clubName.trim(),
+      status: ClubStatus.ACTIVE,
     };
 
     try {
