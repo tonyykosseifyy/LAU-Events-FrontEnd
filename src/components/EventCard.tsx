@@ -35,7 +35,9 @@ const EventCard: FC<{ event: Event; navigation: any }> = ({ event, navigation })
       <View className="flex flex-row justify-between items-center mt-2 flex-wrap">
         <View className="flex items-center flex-row ">
           <View className="bg-success py-2 px-2 rounded-xl">
-            <TextWrapper className="text-xs text-brand-dark">American Society Club</TextWrapper>
+            <TextWrapper className="text-xs text-brand-dark">
+              {event.Clubs && event.Clubs.length > 0 ? event.Clubs.at(0)?.clubName : 'Unkown Club'}
+            </TextWrapper>
           </View>
         </View>
         <Pressable

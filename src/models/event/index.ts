@@ -13,6 +13,7 @@ export interface Event {
   status: EventStatus;
   createdAt: string;
   updatedAt: string;
+  declinedUsers?: number;
 }
 
 export interface EventRequest {

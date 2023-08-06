@@ -8,7 +8,9 @@ import TextWrapper from '../../components/TextWrapper';
 import DashboardSVG from '../../../assets/Icons/dashboard.svg';
 import EventsSVG from '../../../assets/Icons/events.svg';
 import ClubsSVG from '../../../assets/Icons/clubs.svg';
+import TwoLinesSVG from '../../../assets/Icons/two_lines.svg';
 import { useAuth } from '../../context/AuthContext';
+import Credits from '../Credits';
 
 const Tab = createBottomTabNavigator();
 
@@ -78,6 +80,24 @@ const AdminHome = () => {
             ) : (
               <View>
                 <ClubsSVG width={20} height={20} color="#AAAAAA" />
+              </View>
+            );
+          },
+        }}
+      />
+      <Tab.Screen
+        name="Credits"
+        component={Credits}
+        options={{
+          tabBarIcon: ({ focused }) => {
+            return focused ? (
+              <View className="bg-brand p-2 rounded-md flex flex-row items-center">
+                <TwoLinesSVG width={20} height={20} color="#EAF2EF" />
+                <TextWrapper className="text-white text-xs pl-2">Credits</TextWrapper>
+              </View>
+            ) : (
+              <View>
+                <TwoLinesSVG width={20} height={20} color="#AAAAAA" />
               </View>
             );
           },

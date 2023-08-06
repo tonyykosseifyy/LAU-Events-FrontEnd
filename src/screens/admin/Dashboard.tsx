@@ -1,4 +1,4 @@
-import { View, FlatList } from 'react-native';
+import { View, FlatList, Pressable, Modal } from 'react-native';
 import React, { useEffect, useMemo } from 'react';
 import TextWrapper from '../../components/TextWrapper';
 import { SafeAreaView } from 'react-native-safe-area-context';
@@ -13,6 +13,7 @@ import { ClubApi } from '../../utils/api/crud/clubs';
 import { EventStatus } from '../../models/event';
 import DashboardApi from '../../utils/api/dashboard';
 import { DashboardData } from '../../models/dashboard';
+import { useQuery, useQueryClient } from '@tanstack/react-query';
 
 interface DashboardDataSource {
   title: string;
@@ -22,37 +23,25 @@ interface DashboardDataSource {
 
 const Dashboard = () => {
   const authContext = useAuth();
+  const session = useSession(authContext.authState);
+  const queryClient = useQueryClient();
 
-  const [dashboardData, setDashboardData] = React.useState<DashboardData>({
-    eventCount: 0,
-    clubCount: 0,
-    acceptanceRate: 0,
-    declineRate: 0,
-  });
-
-  useEffect(() => {
-    const getDashboardData = async () => {
-      if (!authContext?.authState.user?.accessToken) return;
-      const session = useSession(authContext.authState);
-
+  const { data: dashboardData, refetch } = useQuery<DashboardData, Error>(
+    ['dashboard', session],
+    async () => {
       const dashboardApi = new DashboardApi(session);
-      try {
-        const res: any = await dashboardApi.getDashboardData();
-
-        if (!res) return;
-        // go over all entries in res, if any is null set it to 0
-        Object.keys(res).forEach((key) => {
-          if (res[key] === null) res[key] = 0;
-        });
-
-        setDashboardData(res);
-      } catch (e) {
-        console.log(e);
-        authContext.signOut();
-      }
-    };
-    getDashboardData();
-  }, []);
+      const res = await dashboardApi.getDashboardData();
+      Object.keys(res).forEach((key) => {
+        if (res[key as keyof DashboardData] === null) res[key as keyof DashboardData] = 0;
+      });
+      return res;
+    },
+    {
+      enabled: !!session,
+      cacheTime: 1000 * 10,
+      refetchInterval: 1000 * 10,
+    }
+  );
 
   const dataSource = useMemo(() => {
     return [
@@ -83,12 +72,55 @@ const Dashboard = () => {
 
   const downloadDataRaw = () => {};
 
+  const [modalVisible, setModalVisible] = React.useState(false);
+
   return (
     <SafeAreaView className="bg-brand-lighter w-full h-full py-10 px-6">
       <View className="flex flex-row w-full justify-between items-center">
         <TextWrapper className="text-2xl text-black">Dashboard</TextWrapper>
         <DashboardSVG width={20} height={20} color="#006E58" />
       </View>
+      <Modal
+        animationType="slide"
+        transparent={true}
+        visible={modalVisible}
+        onRequestClose={() => {
+          setModalVisible(!modalVisible);
+        }}>
+        <View className="w-full h-full flex justify-center items-center bg-brand/20">
+          <View className="bg-brand-lighter w-5/6 h-72 rounded-lg py-4 px-6 flex flex-col justify-between">
+            <View className="flex flex-col">
+              <View className="flex flex-row justify-between items-center w-full">
+                <TextWrapper className="text-xl text-black">
+                  ⚠️ Are you sure you want to{' '}
+                  <TextWrapper className="text-error">delete all</TextWrapper> the events in the
+                  database? ⚠️
+                </TextWrapper>
+              </View>
+            </View>
+            <View className="flex flex-row w-full justify-end items-center">
+              <Pressable
+                className="bg-gray/40 px-6 py-2 rounded-lg"
+                onPress={() => {
+                  setModalVisible(false);
+                }}>
+                <TextWrapper className="text-black text-base">Cancel</TextWrapper>
+              </Pressable>
+              <View className="w-4" />
+              <Pressable
+                className="bg-error px-8 py-2 rounded-lg"
+                onPress={() => {
+                  const eventApi = new EventApi(useSession(authContext.authState));
+                  eventApi.deleteAll();
+                  refetch();
+                  setModalVisible(false);
+                }}>
+                <TextWrapper className="text-white text-base">DELETE ALL</TextWrapper>
+              </Pressable>
+            </View>
+          </View>
+        </View>
+      </Modal>
       <View className="h-fit w-full mt-14">
         <FlatList
           data={dataSource}
@@ -102,7 +134,7 @@ const Dashboard = () => {
               key={index}>
               <TextWrapper className="text-white text-xl">{item.title}</TextWrapper>
               <TextWrapper className="text-white text-2xl mt-2 text-right place-items-end">
-                {dashboardData.hasOwnProperty(item.key)
+                {dashboardData && dashboardData.hasOwnProperty(item.key)
                   ? dashboardData[item.key as keyof DashboardData]
                   : 0}
                 {item.isPercentage ? '%' : ''}
@@ -136,6 +168,15 @@ const Dashboard = () => {
             Raw format
           </TextWrapper>
         </View>
+      </View>
+      <View className="w-full mt-2 flex justify-end flex-row">
+        <Pressable
+          className="bg-error/20 px-6 py-2 rounded-lg"
+          onPress={() => {
+            setModalVisible(true);
+          }}>
+          <TextWrapper className="text-black text-base">Reset All</TextWrapper>
+        </Pressable>
       </View>
     </SafeAreaView>
   );

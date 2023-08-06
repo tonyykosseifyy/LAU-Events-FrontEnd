@@ -17,6 +17,8 @@ import { Controller, Form, useForm } from 'react-hook-form';
 import { useAuth } from '../context/AuthContext';
 import { isAxiosError, unWrapAuthError } from '../utils/errors';
 import { AxiosError } from 'axios';
+import { UserRole } from '../models/user';
+import { API_URL } from '@env';
 
 type SignInForm = {
   email: string;
@@ -49,10 +51,20 @@ const Signin = ({ navigation }: any) => {
   const [signinError, setSigninError] = React.useState<string | null>(null);
 
   useEffect(() => {
-    if (authState.user) {
+    // only if it set to false then we go to verification
+    // if it was null, we go to signin page
+    if (authState.isVerified === false) {
+      navigation.navigate('Verification');
+      return;
+    }
+
+    if (authState.user && authState.user.role === UserRole.ADMIN) {
       navigation.navigate('AdminHome');
+    } else if (authState.user && authState.user.role === UserRole.USER) {
+      navigation.navigate('Home');
     }
   }, [authState]);
+
   const onSubmit = async (data: SignInForm) => {
     setSigninError(null);
     try {

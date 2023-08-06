@@ -7,27 +7,32 @@ import EventCard from '../../components/EventCard';
 import { useAuth } from '../../context/AuthContext';
 import useSession from '../../hooks/useSession';
 import { EventApi } from '../../utils/api/crud/events';
+import { useQuery } from '@tanstack/react-query';
 
 const AdminEvents = ({ navigation }: any) => {
   const authContext = useAuth();
   const session = useSession(authContext.authState);
-  const [dataSource, setDataSource] = useState<Event[]>([]);
 
-  useEffect(() => {
-    if (!session) return;
-
-    const getEvents = async () => {
+  const { data: events } = useQuery(
+    ['events', session],
+    async () => {
+      const eventsApi = new EventApi(session);
       try {
-        const eventApi = new EventApi(session);
-        const res = await eventApi.find();
-        setDataSource(res);
+        const res = await eventsApi.find();
+        if (!res) return [];
+        return res;
       } catch (e) {
         console.log(e);
-        authContext.signOut();
+        return [];
       }
-    };
-    getEvents();
-  }, []);
+    },
+    {
+      enabled: !!session,
+      cacheTime: 1000 * 10,
+      refetchInterval: 1000 * 10,
+      initialData: [],
+    }
+  );
 
   return (
     <SafeAreaView className="bg-brand-lighter w-full h-full py-10 px-6">
@@ -42,9 +47,9 @@ const AdminEvents = ({ navigation }: any) => {
         </Pressable>
       </View>
       <View className="h-fit w-full mt-14">
-        {dataSource && dataSource.length > 0 ? (
+        {events && events.length > 0 ? (
           <FlatList
-            data={dataSource}
+            data={events}
             className="w-full"
             ItemSeparatorComponent={() => {
               return <View className="h-10" />; // space between items

@@ -8,7 +8,7 @@ import React, {
   useMemo,
   useState,
 } from 'react';
-import { AuthApi } from '../utils/api/auth/auth.api';
+import { AuthApi, LoginResponse, SignUpResposne } from '../utils/api/auth/auth.api';
 import { User, UserRole } from '../models/user';
 
 const SECURE_STORE_USER_KEY = 'user';
@@ -16,11 +16,13 @@ const SECURE_STORE_USER_KEY = 'user';
 export interface AuthState {
   user: User | null;
   authenticated: boolean | null;
+  isVerified: boolean | null;
 }
 
 interface AuthContextProps {
   signIn: (opts: { email: string; password: string }) => Promise<void>;
   signOut: () => void;
+  verify: (code: string) => Promise<void>;
   authState: AuthState;
 }
 
@@ -32,9 +34,11 @@ export function useAuth(): AuthContextProps {
     return {
       signIn: async () => {},
       signOut: () => {},
+      verify: async () => {},
       authState: {
         user: null,
         authenticated: null,
+        isVerified: null,
       },
     };
   }
@@ -45,17 +49,37 @@ export function AuthProvider({ children }: PropsWithChildren) {
   const [authState, setAuthState] = useState<AuthState>({
     user: null,
     authenticated: null,
+    isVerified: null,
   });
 
   const credentialsSignIn = useMemo(
     () =>
       async ({ email, password }: { email: string; password: string }) => {
-        const {
-          accessToken,
-          refreshToken,
-          email: userEmail,
-          id,
-        } = await new AuthApi().login(email, password);
+        const res = await new AuthApi().login(email, password);
+
+        // if message is in res the its type is SignUpResponse, otherwise its LoginResponse
+        if ('message' in res) {
+          //  Make the user verify his email
+          const { message, userId } = res as SignUpResposne;
+          await SecureStore.setItemAsync(
+            SECURE_STORE_USER_KEY,
+            JSON.stringify({ accessToken: null, refreshToken: null, id: userId, email: email })
+          );
+          setAuthState({
+            user: {
+              accessToken: undefined,
+              refreshToken: undefined,
+              id: userId.toString(),
+              email: email,
+            },
+            authenticated: false,
+            isVerified: false,
+          });
+
+          return;
+        }
+
+        const { accessToken, refreshToken, id, email: userEmail } = res as LoginResponse;
         // decode the jwt to get the isAdmin flag
 
         const role: UserRole = (jwt_decode(accessToken) as { role: UserRole }).role;
@@ -67,6 +91,7 @@ export function AuthProvider({ children }: PropsWithChildren) {
         setAuthState({
           user: { accessToken, refreshToken, id, email: userEmail, role: role },
           authenticated: true,
+          isVerified: true,
         });
       },
     []
@@ -74,7 +99,7 @@ export function AuthProvider({ children }: PropsWithChildren) {
 
   const refresh = useMemo(
     () => async (state: AuthState) => {
-      if (!state.user) return;
+      if (!state.user || !state.user.accessToken || !state.user.refreshToken) return;
 
       try {
         const { accessToken } = await new AuthApi().refresh(state.user.refreshToken);
@@ -100,13 +125,61 @@ export function AuthProvider({ children }: PropsWithChildren) {
             role: state.user.role,
           },
           authenticated: true,
+          isVerified: true,
         });
       } catch (e) {
         console.log(e);
         setAuthState({
           user: null,
           authenticated: false,
+          isVerified: null,
         });
+      }
+    },
+    []
+  );
+
+  const verify = useMemo(
+    () => async (code: string) => {
+      // this should exists because we need the userId to send the verification request
+      if (!authState.user) return;
+
+      try {
+        const stored = await SecureStore.getItemAsync(SECURE_STORE_USER_KEY);
+        if (!stored) {
+          throw new Error('User not found in secure store');
+        }
+        const storedUser = JSON.parse(stored) as User;
+        const { accessToken, email, refreshToken, id } = await new AuthApi().verify(
+          code,
+          storedUser.id.toString()
+        );
+
+        const role: UserRole = (jwt_decode(accessToken) as { role: UserRole }).role;
+
+        await SecureStore.setItemAsync(
+          SECURE_STORE_USER_KEY,
+          JSON.stringify({
+            accessToken,
+            refreshToken: refreshToken,
+            id: id,
+            email: email,
+            role: role,
+          })
+        );
+        setAuthState({
+          user: {
+            accessToken,
+            refreshToken: refreshToken,
+            id: id,
+            email: email,
+            role: role,
+          },
+          authenticated: true,
+          isVerified: true,
+        });
+      } catch (e) {
+        console.log(e);
       }
     },
     []
@@ -114,26 +187,52 @@ export function AuthProvider({ children }: PropsWithChildren) {
 
   useEffect(() => {
     // Load user
-    SecureStore.getItemAsync(SECURE_STORE_USER_KEY).then((r) => {
-      if (!r) {
+    SecureStore.getItemAsync(SECURE_STORE_USER_KEY)
+      .then((r) => {
+        if (!r) {
+          setAuthState({
+            user: null,
+            authenticated: false,
+            isVerified: null,
+          });
+
+          return;
+        }
+        const u = JSON.parse(r) as User;
+        if (!u || !u.accessToken || !u.refreshToken) {
+          setAuthState({
+            user: {
+              accessToken: u?.accessToken ?? undefined,
+              refreshToken: u?.refreshToken ?? undefined,
+              id: u?.id ?? null,
+              email: u?.email ?? null,
+              role: u?.role ?? undefined,
+            },
+            authenticated: false,
+            isVerified: authState.isVerified ?? null,
+          });
+          return;
+        }
+
+        setAuthState({
+          user: u,
+          authenticated: true,
+          isVerified: true,
+        });
+      })
+      .catch((e) => {
+        console.log(e);
         setAuthState({
           user: null,
           authenticated: false,
+          isVerified: null,
         });
-
-        return;
-      }
-      const u = JSON.parse(r) as User;
-      setAuthState({
-        user: u,
-        authenticated: true,
       });
-    });
   }, []);
 
   useEffect(() => {
     // handle jwt expiry
-    if (!authState.user) return;
+    if (!authState.user || !authState.user.accessToken) return;
 
     let handle: NodeJS.Timeout | null = null;
     const { exp } = jwt_decode(authState.user.accessToken) as { exp: number };
@@ -163,8 +262,10 @@ export function AuthProvider({ children }: PropsWithChildren) {
           setAuthState({
             user: null,
             authenticated: false,
+            isVerified: null,
           });
         },
+        verify: verify,
         authState,
       }}>
       {children}
