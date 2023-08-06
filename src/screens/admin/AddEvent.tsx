@@ -17,6 +17,7 @@ import { ClubApi } from '../../utils/api/crud/clubs';
 import { ScrollView } from 'react-native-gesture-handler';
 import { EventApi } from '../../utils/api/crud/events';
 import { EventStatus } from '../../models/event';
+import { useQueryClient } from '@tanstack/react-query';
 
 type EventForm = {
   eventName: string;
@@ -40,6 +41,7 @@ const EventFormSchema = yup.object().shape({
 });
 
 const AddEvent = ({ navigation }: any) => {
+  const queryClient = useQueryClient();
   const {
     control,
     getValues,
@@ -96,6 +98,9 @@ const AddEvent = ({ navigation }: any) => {
       });
 
       if (res) {
+        queryClient.refetchQueries(['events']);
+        queryClient.invalidateQueries(['events']);
+        queryClient.fetchQuery(['events']);
         navigation.goBack();
       }
     } catch (e) {

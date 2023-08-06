@@ -14,15 +14,18 @@ const Credits = () => {
       </View>
       <View className="w-full mt-12 flex flex-col">
         <TextWrapper className="text-black text-xl font-bold">
-          Software Engineering Club
+          By the Software Engineering Club
         </TextWrapper>
         {/* byllet point list in react native */}
-        <TextWrapper className="text-black text-xl mt-5">Frontend</TextWrapper>
+        <TextWrapper className="text-black text-xl mt-5">Frontend Devs</TextWrapper>
         <TextWrapper className="text-black text-base mt-2 ml-5">- Charbel Fayad</TextWrapper>
-        <TextWrapper className="text-black text-xl mt-5">Backend</TextWrapper>
+        <TextWrapper className="text-black text-xl mt-5">Backend Devs</TextWrapper>
         <TextWrapper className="text-black text-base mt-2 ml-5">- JeanPaul</TextWrapper>
         <TextWrapper className="text-black text-base mt-2 ml-5">- Tony</TextWrapper>
         <TextWrapper className="text-black text-base mt-2 ml-5">- Peter Daaboul</TextWrapper>
+        <TextWrapper className="text-black font-bold text-xl mt-5">Special Thanks to:</TextWrapper>
+        <TextWrapper className="text-black text-base mt-2 ml-5">- Georgio Ghnatios</TextWrapper>
+        <TextWrapper className="text-black text-base mt-2 ml-5">- Salim</TextWrapper>
       </View>
     </SafeAreaView>
   );
