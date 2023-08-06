@@ -1,4 +1,4 @@
-import { View, Text } from 'react-native';
+import { View, Text, Linking } from 'react-native';
 import React from 'react';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import WaveTopLeftSVG from '../../assets/wave_top_left.svg';
@@ -17,15 +17,51 @@ const Credits = () => {
           By the Software Engineering Club
         </TextWrapper>
         {/* byllet point list in react native */}
-        <TextWrapper className="text-black text-xl mt-5">Frontend Devs</TextWrapper>
-        <TextWrapper className="text-black text-base mt-2 ml-5">- Charbel Fayad</TextWrapper>
+        <TextWrapper className="text-black text-xl mt-5 ">Frontend Devs</TextWrapper>
+        <TextWrapper
+          className="text-black text-base mt-2 ml-5 underline"
+          onPress={() => {
+            Linking.openURL('https://github.com/Murf-y');
+          }}>
+          - Charbel Fayad
+        </TextWrapper>
         <TextWrapper className="text-black text-xl mt-5">Backend Devs</TextWrapper>
-        <TextWrapper className="text-black text-base mt-2 ml-5">- JeanPaul</TextWrapper>
-        <TextWrapper className="text-black text-base mt-2 ml-5">- Tony</TextWrapper>
-        <TextWrapper className="text-black text-base mt-2 ml-5">- Peter Daaboul</TextWrapper>
+        <TextWrapper
+          className="text-black text-base mt-2 ml-5 underline"
+          onPress={() => {
+            Linking.openURL('https://github.com/JeanPaulBassil');
+          }}>
+          - JeanPaul
+        </TextWrapper>
+        <TextWrapper
+          className="text-black text-base mt-2 ml-5 underline"
+          onPress={() => {
+            Linking.openURL('https://github.com/tonyykosseifyy');
+          }}>
+          - Tony
+        </TextWrapper>
+        <TextWrapper
+          className="text-black text-base mt-2 ml-5 underline"
+          onPress={() => {
+            Linking.openURL('https://github.com/Pdaaboul');
+          }}>
+          - Peter Daaboul
+        </TextWrapper>
         <TextWrapper className="text-black font-bold text-xl mt-5">Special Thanks to:</TextWrapper>
-        <TextWrapper className="text-black text-base mt-2 ml-5">- Georgio Ghnatios</TextWrapper>
-        <TextWrapper className="text-black text-base mt-2 ml-5">- Salim</TextWrapper>
+        <TextWrapper
+          className="text-black text-base mt-2 ml-5 underline"
+          onPress={() => {
+            Linking.openURL('https://github.com/Ghantoos7');
+          }}>
+          - Georgio Ghnatios
+        </TextWrapper>
+        <TextWrapper
+          className="text-black text-base mt-2 ml-5 underline"
+          onPress={() => {
+            Linking.openURL('https://github.com/Murf-y');
+          }}>
+          - Salim
+        </TextWrapper>
       </View>
     </SafeAreaView>
   );
