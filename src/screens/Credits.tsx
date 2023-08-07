@@ -16,38 +16,44 @@ const Credits = () => {
         <TextWrapper className="text-black text-xl font-bold">
           By the Software Engineering Club
         </TextWrapper>
-        {/* byllet point list in react native */}
-        <TextWrapper className="text-black text-xl mt-5 ">Frontend Devs</TextWrapper>
-        <TextWrapper
-          className="text-black text-base mt-2 ml-5 underline"
-          onPress={() => {
-            Linking.openURL('https://github.com/Murf-y');
-          }}>
-          - Charbel Fayad
-        </TextWrapper>
-        <TextWrapper className="text-black text-xl mt-5">Backend Devs</TextWrapper>
-        <TextWrapper
-          className="text-black text-base mt-2 ml-5 underline"
-          onPress={() => {
-            Linking.openURL('https://github.com/JeanPaulBassil');
-          }}>
-          - JeanPaul
-        </TextWrapper>
-        <TextWrapper
-          className="text-black text-base mt-2 ml-5 underline"
-          onPress={() => {
-            Linking.openURL('https://github.com/tonyykosseifyy');
-          }}>
-          - Tony
-        </TextWrapper>
-        <TextWrapper
-          className="text-black text-base mt-2 ml-5 underline"
-          onPress={() => {
-            Linking.openURL('https://github.com/Pdaaboul');
-          }}>
-          - Peter Daaboul
-        </TextWrapper>
-        <TextWrapper className="text-black font-bold text-xl mt-5">Special Thanks to:</TextWrapper>
+        <View className="w-full flex flex-row justify-between mt-4">
+          <View className="flex flex-col">
+            <TextWrapper className="text-black text-xl mt-5 ">Frontend Devs</TextWrapper>
+            <TextWrapper
+              className="text-black text-base mt-2 ml-5 underline"
+              onPress={() => {
+                Linking.openURL('https://github.com/Murf-y');
+              }}>
+              - Charbel Fayad
+            </TextWrapper>
+          </View>
+          <View className="w-[1px] h-full bg-black/10 rounded-full"></View>
+          <View className="flex flex-col">
+            <TextWrapper className="text-black text-xl mt-5">Backend Devs</TextWrapper>
+            <TextWrapper
+              className="text-black text-base mt-2 ml-5 underline"
+              onPress={() => {
+                Linking.openURL('https://github.com/JeanPaulBassil');
+              }}>
+              - JeanPaul
+            </TextWrapper>
+            <TextWrapper
+              className="text-black text-base mt-2 ml-5 underline"
+              onPress={() => {
+                Linking.openURL('https://github.com/tonyykosseifyy');
+              }}>
+              - Tony
+            </TextWrapper>
+            <TextWrapper
+              className="text-black text-base mt-2 ml-5 underline"
+              onPress={() => {
+                Linking.openURL('https://github.com/Pdaaboul');
+              }}>
+              - Peter Daaboul
+            </TextWrapper>
+          </View>
+        </View>
+        <TextWrapper className="text-black font-bold text-xl mt-12">Special Thanks to:</TextWrapper>
         <TextWrapper
           className="text-black text-base mt-2 ml-5 underline"
           onPress={() => {
