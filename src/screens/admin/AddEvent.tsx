@@ -10,7 +10,7 @@ import DateTimePickerModal from 'react-native-modal-datetime-picker';
 import CalenderSVG from '../../../assets/Icons/calender.svg';
 import dayjs from 'dayjs';
 import MultiselectDropdown from '../../components/MultiselectDropdown';
-import { Club } from '../../models/club';
+import { Club, ClubStatus } from '../../models/club';
 import { useAuth } from '../../context/AuthContext';
 import useSession from '../../hooks/useSession';
 import { ClubApi } from '../../utils/api/crud/clubs';
@@ -18,6 +18,7 @@ import { ScrollView } from 'react-native-gesture-handler';
 import { EventApi } from '../../utils/api/crud/events';
 import { EventStatus } from '../../models/event';
 import { useQueryClient } from '@tanstack/react-query';
+import SelectDropdown from 'react-native-select-dropdown';
 
 type EventForm = {
   eventName: string;
@@ -72,6 +73,7 @@ const AddEvent = ({ navigation }: any) => {
   const [showEndDatePicker, setShowEndDatePicker] = useState(false);
   const [selectedClubs, setSelectedClubs] = useState<Club[]>([]);
   const [clubsError, setClubsError] = useState<string | null>(null);
+  const [dropDowanTextColor, setDropDownTextColor] = useState<string>('#AAAAAA');
 
   const toggleStartDatePicker = () => {
     setShowStartDatePicker(!showStartDatePicker);
@@ -177,10 +179,46 @@ const AddEvent = ({ navigation }: any) => {
           <View className="z-20">
             <TextWrapper className="text-base text-black mt-3">Clubs</TextWrapper>
             <View className="h-2" />
-            <MultiselectDropdown
-              options={clubs}
-              onChange={setSelectedClubs}
-              selectedOptions={selectedClubs}
+            <SelectDropdown
+              data={clubs
+                .filter((i) => {
+                  return i.status === ClubStatus.ACTIVE;
+                })
+                .map((i) => i.clubName)}
+              onSelect={(selectedItem, index) => {
+                if (selectedClubs.find((i) => i.id === clubs[index].id)) {
+                  // if already selected remove it
+                  setSelectedClubs(selectedClubs.filter((i) => i.id !== clubs[index].id));
+                  return;
+                }
+                setSelectedClubs([...selectedClubs, clubs[index]]);
+                setDropDownTextColor('green');
+              }}
+              buttonTextAfterSelection={(selectedItem, index) => {
+                return selectedClubs.map((i) => i.clubName).join(', ');
+              }}
+              rowTextForSelection={(item, index) => {
+                return item;
+              }}
+              buttonStyle={{
+                backgroundColor: '#fff',
+                width: '100%',
+                borderWidth: 1,
+                borderRadius: 5,
+                borderColor: '#AAAAAA',
+              }}
+              buttonTextStyle={{
+                color: dropDowanTextColor,
+                fontSize: 14,
+                textAlign: 'left',
+              }}
+              dropdownStyle={{
+                backgroundColor: '#fff',
+                borderWidth: 1,
+                borderRadius: 5,
+                borderColor: '#006E58',
+              }}
+              defaultButtonText="Select Clubs"
             />
             <View className="h-2" />
             {clubsError && <TextWrapper className="text-error text-sm">{clubsError}</TextWrapper>}

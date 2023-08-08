@@ -8,29 +8,34 @@ import { TextInput } from 'react-native-gesture-handler';
 import { ClubApi } from '../../utils/api/crud/clubs';
 import { useAuth } from '../../context/AuthContext';
 import useSession from '../../hooks/useSession';
+import { useQuery, useQueryClient } from '@tanstack/react-query';
 
 const AdminClubs = ({ navigation }: any) => {
   const authContext = useAuth();
   const session = useSession(authContext.authState);
+  const queryClient = useQueryClient();
   const [modalVisible, setModalVisible] = useState(false);
   const [clubName, setClubName] = useState('');
   const [clubNameError, setClubNameError] = useState<string | null>(null);
 
-  const [clubs, setClubs] = React.useState<Club[]>([]);
-
-  useEffect(() => {
-    const getClubs = async () => {
+  const { data: clubs } = useQuery(
+    ['AdminClubs', session],
+    async () => {
       try {
         const clubApi = new ClubApi(session);
         const res = await clubApi.find();
-        setClubs(res);
+        return res;
       } catch (e) {
         console.log(e);
         authContext.signOut();
       }
-    };
-    getClubs();
-  }, []);
+    },
+    {
+      enabled: !!session,
+      cacheTime: 1000 * 10,
+      refetchInterval: 1000 * 10,
+    }
+  );
 
   const addClub = async () => {
     if (!clubName || clubName.length < 3) {
@@ -46,7 +51,8 @@ const AdminClubs = ({ navigation }: any) => {
     try {
       const clubApi = new ClubApi(session);
       const res = await clubApi.create(newClub);
-      setClubs([...clubs, res]);
+      queryClient.invalidateQueries(['AdminClubs']);
+      queryClient.refetchQueries(['AdminClubs']);
       setModalVisible(false);
       setClubName('');
       setClubNameError(null);
@@ -128,19 +134,25 @@ const AdminClubs = ({ navigation }: any) => {
         </Pressable>
       </View>
       <View className="h-fit w-full mt-14">
-        <FlatList
-          data={clubs}
-          className="w-full"
-          ItemSeparatorComponent={() => {
-            return <View className="h-6" />; // space between items
-          }}
-          renderItem={({ item, index }) => (
-            <ClubCard club={item} key={index} navigation={navigation} />
-          )}
-          //Setting the number of column
-          numColumns={1}
-          keyExtractor={(item, index) => index + ''}
-        />
+        {clubs && clubs.length > 0 ? (
+          <FlatList
+            data={clubs}
+            className="w-full"
+            ItemSeparatorComponent={() => {
+              return <View className="h-6" />; // space between items
+            }}
+            renderItem={({ item, index }) => (
+              <ClubCard club={item} key={index} navigation={navigation} />
+            )}
+            //Setting the number of column
+            numColumns={1}
+            keyExtractor={(item, index) => index + ''}
+          />
+        ) : (
+          <View className="flex items-center justify-center h-full">
+            <TextWrapper className="text-2xl text-gray"> No Clubs Found</TextWrapper>
+          </View>
+        )}
       </View>
     </SafeAreaView>
   );

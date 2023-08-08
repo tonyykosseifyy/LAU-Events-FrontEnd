@@ -14,6 +14,7 @@ import { useAuth } from '../../context/AuthContext';
 import useSession from '../../hooks/useSession';
 import { ClubApi } from '../../utils/api/crud/clubs';
 import clsx from 'clsx';
+import { useQueryClient } from '@tanstack/react-query';
 
 const event_placeholder = require('../../../assets/event_image_placeholder.png');
 
@@ -21,17 +22,28 @@ const ClubDetails = ({ route, navigation }: any) => {
   const { clubId } = route.params;
   const authContext = useAuth();
   const session = useSession(authContext.authState);
+  const queryClient = useQueryClient();
 
   const [club, setClub] = useState<Club | null>(null);
 
-  const [isEnabled, setIsEnabled] = useState(false);
+  const [isActive, setIsActive] = useState(true);
   const toggleSwitch = async () => {
     try {
-      await new ClubApi(session).update(clubId, {
-        status: isEnabled ? ClubStatus.INACTIVE : ClubStatus.ACTIVE,
+      setIsActive((previousState) => !previousState);
+      const res = await new ClubApi(session).update(clubId, {
+        status: !isActive ? ClubStatus.ACTIVE : ClubStatus.INACTIVE,
       });
 
-      setIsEnabled((previousState) => !previousState);
+      if (!club) return;
+
+      const newClub: Club = {
+        ...club,
+        status: res.status,
+      };
+
+      setClub(newClub);
+      queryClient.invalidateQueries(['AdminClubs']);
+      queryClient.refetchQueries(['AdminClubs']);
     } catch (e) {
       console.log(e);
     }
@@ -47,7 +59,7 @@ const ClubDetails = ({ route, navigation }: any) => {
       const getClub = async () => {
         const res = await new ClubApi(session).findOne(clubId);
         setClub(res);
-        setIsEnabled(res?.status === ClubStatus.ACTIVE);
+        setIsActive(res?.status === ClubStatus.ACTIVE);
       };
       getClub();
     } catch (e) {
@@ -88,15 +100,15 @@ const ClubDetails = ({ route, navigation }: any) => {
       </View>
       <View className="w-full flex justify-end  items-center flex-row">
         <TextWrapper
-          className={clsx('text-base text-black mr-2', isEnabled ? 'text-green' : 'text-red')}>
-          {isEnabled ? 'Inactive' : 'Active'}
+          className={clsx('text-base text-black mr-2', isActive ? 'text-red' : 'text-green')}>
+          {isActive ? 'Active' : 'Inactive'}
         </TextWrapper>
         <Switch
-          trackColor={{ false: '#006E58', true: '#E11D48' }}
-          thumbColor={isEnabled ? '#F6F6F6' : '#F6F6F6'}
+          trackColor={{ false: '#E11D48', true: '#006E58' }}
+          thumbColor={isActive ? '#F6F6F6' : '#F6F6F6'}
           ios_backgroundColor="#3e3e3e"
           onValueChange={toggleSwitch}
-          value={isEnabled}
+          value={isActive}
         />
       </View>
       <View className="mt-8 w-full pr-4">

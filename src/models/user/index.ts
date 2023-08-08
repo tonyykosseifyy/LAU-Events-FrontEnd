@@ -4,6 +4,8 @@ export interface User {
   accessToken?: string;
   refreshToken?: string;
   role?: UserRole;
+  major: string;
+  createdAt: string;
 }
 
 export type Uid = string | number;

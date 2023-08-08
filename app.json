@@ -10,7 +10,7 @@
     },
     "splash": {
       "image": "./assets/splash.png",
-      "resizeMode": "fit",
+      "resizeMode": "contain",
       "backgroundColor": "#EAF2EF"
     },
     "assetBundlePatterns": ["**/*"],
@@ -18,16 +18,23 @@
       "supportsTablet": true,
       "config": {
         "useNonExemptEncryption": false
-      }
+      },
+      "bundleIdentifier": "com.murffyy.LAUEventsAppFrontend"
     },
     "android": {
       "adaptiveIcon": {
         "foregroundImage": "./assets/adaptive-icon.png",
         "backgroundColor": "#ffffff"
-      }
+      },
+      "package": "com.murffyy.LAUEventsAppFrontend"
     },
     "web": {
       "favicon": "./assets/favicon.png"
+    },
+    "extra": {
+      "eas": {
+        "projectId": "a9536565-bf98-4842-a7b9-07b3a85f11f3"
+      }
     }
   }
 }

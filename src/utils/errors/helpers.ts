@@ -17,15 +17,12 @@ export function unWrapAuthError(error: AxiosError<{} | unknown> | undefined): st
     return error.message;
   }
 
-  if (error.response.status === 401) {
-    return 'Invalid credentials, please try again';
+  if (error.response.data === undefined) {
+    return 'Something went wrong, please try again';
   }
 
-  if (error.response.status === 400) {
-    return (error.response.data as any).error;
-  }
-
-  return 'Something went wrong, please try again';
+  const res: any = error.response.data;
+  return res.message || res.error || 'Something went wrong, please try again';
 }
 
 export function isError(error: unknown): error is Error {

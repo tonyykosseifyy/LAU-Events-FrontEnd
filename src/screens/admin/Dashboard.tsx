@@ -24,7 +24,6 @@ interface DashboardDataSource {
 const Dashboard = () => {
   const authContext = useAuth();
   const session = useSession(authContext.authState);
-  const queryClient = useQueryClient();
 
   const { data: dashboardData, refetch } = useQuery<DashboardData, Error>(
     ['dashboard', session],

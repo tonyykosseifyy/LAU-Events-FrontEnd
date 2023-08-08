@@ -11,4 +11,8 @@ export class EventApi extends CrudApi<Event, EventRequest> {
   async findOneWithDetails(id: string) {
     return (await this.client.get<Event>(`${this.path}/${id}/details`)).data;
   }
+
+  async findDeclined() {
+    return (await this.client.get<Event[]>(`${this.path}/declinedEvents`)).data;
+  }
 }
