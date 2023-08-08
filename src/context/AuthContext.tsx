@@ -154,14 +154,9 @@ export function AuthProvider({ children }: PropsWithChildren) {
       if (!authState.user) return;
 
       try {
-        const stored = await SecureStore.getItemAsync(SECURE_STORE_USER_KEY);
-        if (!stored) {
-          throw new Error('User not found in secure store');
-        }
-        const storedUser = JSON.parse(stored) as User;
         const { accessToken, email, refreshToken, id } = await new AuthApi().verify(
           code,
-          storedUser.id.toString()
+          authState.user.id.toString()
         );
 
         const role: UserRole = (jwt_decode(accessToken) as { role: UserRole }).role;

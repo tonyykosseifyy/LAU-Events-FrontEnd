@@ -45,9 +45,9 @@ const Verification = ({ navigation }: any) => {
     if (authState.user && authState.user.role === UserRole.ADMIN) {
       navigation.navigate('AdminHome');
     } else if (authState.user && authState.user.role === UserRole.USER) {
-      navigation.navigate('Home');
+      navigation.navigate('UserHome');
     }
-    if (!authState.isVerified || authState.isVerified === true) {
+    if (authState.isVerified === null || authState.isVerified === true) {
       navigation.navigate('Signin');
     }
   }, [authState]);
@@ -55,6 +55,7 @@ const Verification = ({ navigation }: any) => {
   const onSubmit = async (data: VerificationForm) => {
     setVerifyError(null);
     try {
+      console.log(data.code);
       await verify(data.code);
     } catch (e) {
       if (isAxiosError(e)) {

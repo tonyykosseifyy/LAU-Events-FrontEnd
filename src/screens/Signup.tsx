@@ -66,7 +66,7 @@ const Signup = ({ navigation }: any) => {
     if (authState.user && authState.user.role === UserRole.ADMIN) {
       navigation.navigate('AdminHome');
     } else if (authState.user && authState.user.role === UserRole.USER) {
-      navigation.navigate('Home');
+      navigation.navigate('UserHome');
     }
   }, [authState]);
 

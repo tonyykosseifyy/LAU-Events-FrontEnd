@@ -61,7 +61,7 @@ const Signin = ({ navigation }: any) => {
     if (authState.user && authState.user.role === UserRole.ADMIN) {
       navigation.navigate('AdminHome');
     } else if (authState.user && authState.user.role === UserRole.USER) {
-      navigation.navigate('Home');
+      navigation.navigate('UserHome');
     }
   }, [authState]);
 
@@ -72,9 +72,12 @@ const Signin = ({ navigation }: any) => {
     } catch (e) {
       if (isAxiosError(e)) {
         setSigninError(unWrapAuthError(e as AxiosError));
+      } else {
+        setSigninError('Something went wrong');
       }
     }
   };
+
   return (
     <SafeAreaView className="h-full w-full">
       <ScrollView className="flex w-full flex-col bg-brand-lighter px-6 pr-10 py-12">

@@ -71,7 +71,7 @@ export default function RootLayout() {
         if (authState.user.role === UserRole.ADMIN) {
           setInitialRouteName('AdminHome');
         } else {
-          setInitialRouteName('Home');
+          setInitialRouteName('UserHome');
         }
       } else {
         setInitialRouteName('Signin');
