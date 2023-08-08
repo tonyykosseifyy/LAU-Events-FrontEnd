@@ -6,7 +6,16 @@ export class AuthApi extends CoreApi {
     super(param);
   }
 
-  async login(email: string, password: string): Promise<LoginOrSignupResponse> {
+  async signup(email: string, password: string, major: string): Promise<SignUpResposne> {
+    const res = await this.client.post(`${this.path}/signup`, {
+      email,
+      password,
+      major,
+    });
+    return res.data;
+  }
+
+  async login(email: string, password: string): Promise<LoginResponse> {
     const res = await this.client.post(`${this.path}/signin`, {
       email,
       password,
@@ -31,15 +40,14 @@ export interface LoginResponse {
   accessToken: string;
   email: string;
   id: string;
+  major: string;
+  createdAt: string;
 }
 
 export interface SignUpResposne {
   message: string;
   userId: number;
 }
-
-// on signin, either return SignIn or the SignupResponse for verification
-export type LoginOrSignupResponse = LoginResponse | SignUpResposne;
 
 export interface RefreshTokenResponse {
   accessToken: string;

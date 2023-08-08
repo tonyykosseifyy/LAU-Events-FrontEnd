@@ -8,7 +8,7 @@ import {
   TouchableHighlight,
 } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
-import React, { useEffect } from 'react';
+import React, { useEffect, useState } from 'react';
 import TextWrapper from '../components/TextWrapper';
 import { yupResolver } from '@hookform/resolvers/yup';
 import LogoNoText from '../../assets/logo_no_text.svg';
@@ -18,6 +18,7 @@ import { useAuth } from '../context/AuthContext';
 import { isAxiosError, unWrapAuthError } from '../utils/errors';
 import { AxiosError } from 'axios';
 import { UserRole } from '../models/user';
+import clsx from 'clsx';
 
 type VerificationForm = {
   code: string;
@@ -39,25 +40,32 @@ const Verification = ({ navigation }: any) => {
     resolver: yupResolver(VerificationFormSchema),
   });
 
-  const [verifyError, setVerifyError] = React.useState<string | null>(null);
+  const [verifyError, setVerifyError] = useState<string | null>(null);
+  const [isSubmitting, setIsSubmitting] = useState<boolean>(false);
 
   useEffect(() => {
     if (authState.user && authState.user.role === UserRole.ADMIN) {
       navigation.navigate('AdminHome');
+      return;
     } else if (authState.user && authState.user.role === UserRole.USER) {
       navigation.navigate('UserHome');
+      return;
     }
     if (authState.isVerified === null || authState.isVerified === true) {
       navigation.navigate('Signin');
+      return;
     }
   }, [authState]);
 
   const onSubmit = async (data: VerificationForm) => {
     setVerifyError(null);
+    setIsSubmitting(true);
     try {
       console.log(data.code);
       await verify(data.code);
+      setIsSubmitting(false);
     } catch (e) {
+      setIsSubmitting(false);
       if (isAxiosError(e)) {
         console.log(e.response?.data);
         setVerifyError(unWrapAuthError(e as AxiosError));
@@ -103,7 +111,10 @@ const Verification = ({ navigation }: any) => {
         <View className="w-full flex flex-row items-center justify-between mt-20 z-10">
           <TextWrapper className="text-black text-2xl">Verify</TextWrapper>
           <TouchableHighlight
-            className="bg-brand rounded-full w-16 h-16 flex items-center justify-center"
+            className={clsx('bg-brand rounded-full w-16 h-16 flex items-center justify-center', {
+              'bg-gray cursor-not-allowed': isSubmitting,
+            })}
+            disabled={isSubmitting}
             onPress={() => {
               trigger();
               if (isValid) {

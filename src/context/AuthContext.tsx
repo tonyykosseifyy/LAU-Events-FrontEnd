@@ -57,12 +57,50 @@ export function AuthProvider({ children }: PropsWithChildren) {
   const credentialsSignIn = useMemo(
     () =>
       async ({ email, password }: { email: string; password: string }) => {
-        const res = await new AuthApi().login(email, password);
+        try {
+          const res = await new AuthApi().login(email, password);
 
-        // if message is in res the its type is SignUpResponse, otherwise its LoginResponse
-        if ('message' in res) {
-          //  Make the user verify his email
-          const { message, userId } = res as SignUpResposne;
+          const {
+            accessToken,
+            refreshToken,
+            id,
+            email: userEmail,
+            major,
+            createdAt,
+          } = res as LoginResponse;
+          // decode the jwt to get the isAdmin flag
+          const role: UserRole = (jwt_decode(accessToken) as { role: UserRole }).role;
+
+          await SecureStore.setItemAsync(
+            SECURE_STORE_USER_KEY,
+            JSON.stringify({
+              accessToken,
+              refreshToken,
+              id,
+              email: userEmail,
+              role,
+              major,
+              createdAt,
+            })
+          );
+          setAuthState({
+            user: { accessToken, refreshToken, id, email: userEmail, role, major, createdAt },
+            authenticated: true,
+            isVerified: true,
+          });
+        } catch (e) {
+          throw e;
+        }
+      },
+    []
+  );
+
+  const signUp = useMemo(
+    () =>
+      async ({ email, password, major }: { email: string; password: string; major: string }) => {
+        try {
+          const res = await new AuthApi().signup(email, password, major);
+          const { message, userId } = res;
           await SecureStore.setItemAsync(
             SECURE_STORE_USER_KEY,
             JSON.stringify({ accessToken: null, refreshToken: null, id: userId, email: email })
@@ -73,39 +111,20 @@ export function AuthProvider({ children }: PropsWithChildren) {
               refreshToken: undefined,
               id: userId.toString(),
               email: email,
+              major: '',
+              createdAt: '',
             },
             authenticated: false,
             isVerified: false,
           });
-
-          return;
+        } catch (e) {
+          throw e;
         }
-
-        const { accessToken, refreshToken, id, email: userEmail } = res as LoginResponse;
-        // decode the jwt to get the isAdmin flag
-
-        const role: UserRole = (jwt_decode(accessToken) as { role: UserRole }).role;
-
-        await SecureStore.setItemAsync(
-          SECURE_STORE_USER_KEY,
-          JSON.stringify({ accessToken, refreshToken, id, email: userEmail, role: role })
-        );
-        setAuthState({
-          user: { accessToken, refreshToken, id, email: userEmail, role: role },
-          authenticated: true,
-          isVerified: true,
-        });
+        return;
       },
     []
   );
 
-  const signUp = useMemo(
-    () =>
-      async ({ email, password, major }: { email: string; password: string; major: string }) => {
-        // const res = await new AuthApi().signUp(email, password, major);
-      },
-    []
-  );
   const refresh = useMemo(
     () => async (state: AuthState) => {
       if (!state.user || !state.user.accessToken || !state.user.refreshToken) return;
@@ -123,6 +142,8 @@ export function AuthProvider({ children }: PropsWithChildren) {
             id: state.user.id,
             email: state.user.email,
             role: role,
+            major: state.user.major,
+            createdAt: state.user.createdAt,
           })
         );
         setAuthState({
@@ -132,6 +153,8 @@ export function AuthProvider({ children }: PropsWithChildren) {
             id: state.user.id,
             email: state.user.email,
             role: state.user.role,
+            major: state.user.major,
+            createdAt: state.user.createdAt,
           },
           authenticated: true,
           isVerified: true,
@@ -151,13 +174,11 @@ export function AuthProvider({ children }: PropsWithChildren) {
   const verify = useMemo(
     () => async (code: string) => {
       // this should exists because we need the userId to send the verification request
-      if (!authState.user) return;
+      if (!authState.user || !authState.user.id) return;
 
       try {
-        const { accessToken, email, refreshToken, id } = await new AuthApi().verify(
-          code,
-          authState.user.id.toString()
-        );
+        const { accessToken, email, refreshToken, id, createdAt, major } =
+          await new AuthApi().verify(code, authState.user.id.toString());
 
         const role: UserRole = (jwt_decode(accessToken) as { role: UserRole }).role;
 
@@ -169,6 +190,8 @@ export function AuthProvider({ children }: PropsWithChildren) {
             id: id,
             email: email,
             role: role,
+            major: major,
+            createdAt: createdAt,
           })
         );
         setAuthState({
@@ -178,6 +201,8 @@ export function AuthProvider({ children }: PropsWithChildren) {
             id: id,
             email: email,
             role: role,
+            major,
+            createdAt,
           },
           authenticated: true,
           isVerified: true,
@@ -211,6 +236,8 @@ export function AuthProvider({ children }: PropsWithChildren) {
               id: u?.id ?? null,
               email: u?.email ?? null,
               role: u?.role ?? undefined,
+              major: u?.major ?? null,
+              createdAt: u?.createdAt ?? null,
             },
             authenticated: false,
             isVerified: authState.isVerified ?? null,

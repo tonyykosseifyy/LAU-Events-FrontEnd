@@ -21,6 +21,7 @@ import { API_URL } from '@env';
 import SelectDropdown from 'react-native-select-dropdown';
 import { LAU_MAJORS } from '../constants';
 import { UserRole } from '../models/user';
+import clsx from 'clsx';
 
 type SignUpForm = {
   email: string;
@@ -54,6 +55,7 @@ const Signup = ({ navigation }: any) => {
   });
 
   const [signupError, setSignupError] = useState<string | null>(null);
+  const [isSubmitting, setIsSubmitting] = useState<boolean>(false);
   const [dropDownTextColor, setDropDownTextColor] = useState<string>('#AAAAAA');
   useEffect(() => {
     // only if it set to false then we go to verification
@@ -72,12 +74,19 @@ const Signup = ({ navigation }: any) => {
 
   const onSubmit = async (data: SignUpForm) => {
     setSignupError(null);
+    setIsSubmitting(true);
     try {
       await signUp(data);
+      setIsSubmitting(false);
+      navigation.navigate('Verification');
     } catch (e) {
       if (isAxiosError(e)) {
+        console.log(e.response?.data);
         setSignupError(unWrapAuthError(e as AxiosError));
+      } else {
+        setSignupError('Something went wrong, please try again!');
       }
+      setIsSubmitting(false);
     }
   };
   return (
@@ -201,7 +210,10 @@ const Signup = ({ navigation }: any) => {
         <View className="w-full flex flex-row items-center justify-between mt-12 z-10">
           <TextWrapper className="text-black text-2xl">Sign up</TextWrapper>
           <TouchableHighlight
-            className="bg-brand rounded-full w-16 h-16 flex items-center justify-center"
+            className={clsx('bg-brand rounded-full w-16 h-16 flex items-center justify-center', {
+              'bg-gray cursor-not-allowed': isSubmitting,
+            })}
+            disabled={isSubmitting}
             onPress={() => {
               trigger();
               if (isValid) {
@@ -217,6 +229,7 @@ const Signup = ({ navigation }: any) => {
           <TextWrapper
             className="text-gray text-sm underline"
             onPress={() => {
+              if (isSubmitting) return;
               navigation.navigate('Signin');
             }}>
             Sign in

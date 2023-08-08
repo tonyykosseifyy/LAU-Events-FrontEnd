@@ -128,19 +128,25 @@ const AdminClubs = ({ navigation }: any) => {
         </Pressable>
       </View>
       <View className="h-fit w-full mt-14">
-        <FlatList
-          data={clubs}
-          className="w-full"
-          ItemSeparatorComponent={() => {
-            return <View className="h-6" />; // space between items
-          }}
-          renderItem={({ item, index }) => (
-            <ClubCard club={item} key={index} navigation={navigation} />
-          )}
-          //Setting the number of column
-          numColumns={1}
-          keyExtractor={(item, index) => index + ''}
-        />
+        {clubs && clubs.length > 0 ? (
+          <FlatList
+            data={clubs}
+            className="w-full"
+            ItemSeparatorComponent={() => {
+              return <View className="h-6" />; // space between items
+            }}
+            renderItem={({ item, index }) => (
+              <ClubCard club={item} key={index} navigation={navigation} />
+            )}
+            //Setting the number of column
+            numColumns={1}
+            keyExtractor={(item, index) => index + ''}
+          />
+        ) : (
+          <View className="flex items-center justify-center h-full">
+            <TextWrapper className="text-2xl text-gray"> No Clubs Found</TextWrapper>
+          </View>
+        )}
       </View>
     </SafeAreaView>
   );

@@ -10,7 +10,7 @@ import DateTimePickerModal from 'react-native-modal-datetime-picker';
 import CalenderSVG from '../../../assets/Icons/calender.svg';
 import dayjs from 'dayjs';
 import MultiselectDropdown from '../../components/MultiselectDropdown';
-import { Club } from '../../models/club';
+import { Club, ClubStatus } from '../../models/club';
 import { useAuth } from '../../context/AuthContext';
 import useSession from '../../hooks/useSession';
 import { ClubApi } from '../../utils/api/crud/clubs';
@@ -180,7 +180,11 @@ const AddEvent = ({ navigation }: any) => {
             <TextWrapper className="text-base text-black mt-3">Clubs</TextWrapper>
             <View className="h-2" />
             <SelectDropdown
-              data={clubs.map((i) => i.clubName)}
+              data={clubs
+                .filter((i) => {
+                  return i.status === ClubStatus.ACTIVE;
+                })
+                .map((i) => i.clubName)}
               onSelect={(selectedItem, index) => {
                 if (selectedClubs.find((i) => i.id === clubs[index].id)) {
                   // if already selected remove it

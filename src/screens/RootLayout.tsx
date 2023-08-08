@@ -74,7 +74,7 @@ export default function RootLayout() {
           setInitialRouteName('UserHome');
         }
       } else {
-        setInitialRouteName('Signin');
+        setInitialRouteName('Signup');
       }
     } else {
       setInitialRouteName('OnBoarding');
