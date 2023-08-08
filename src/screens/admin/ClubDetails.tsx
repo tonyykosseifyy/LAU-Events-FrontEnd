@@ -14,6 +14,7 @@ import { useAuth } from '../../context/AuthContext';
 import useSession from '../../hooks/useSession';
 import { ClubApi } from '../../utils/api/crud/clubs';
 import clsx from 'clsx';
+import { useQueryClient } from '@tanstack/react-query';
 
 const event_placeholder = require('../../../assets/event_image_placeholder.png');
 
@@ -21,6 +22,7 @@ const ClubDetails = ({ route, navigation }: any) => {
   const { clubId } = route.params;
   const authContext = useAuth();
   const session = useSession(authContext.authState);
+  const queryClient = useQueryClient();
 
   const [club, setClub] = useState<Club | null>(null);
 
@@ -31,8 +33,17 @@ const ClubDetails = ({ route, navigation }: any) => {
       const res = await new ClubApi(session).update(clubId, {
         status: !isActive ? ClubStatus.ACTIVE : ClubStatus.INACTIVE,
       });
-      console.log(res);
-      // setClub(res)
+
+      if (!club) return;
+
+      const newClub: Club = {
+        ...club,
+        status: res.status,
+      };
+
+      setClub(newClub);
+      queryClient.invalidateQueries(['AdminClubs']);
+      queryClient.refetchQueries(['AdminClubs']);
     } catch (e) {
       console.log(e);
     }
