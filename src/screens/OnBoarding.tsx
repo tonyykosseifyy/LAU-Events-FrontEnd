@@ -7,7 +7,7 @@ import ConfettiSvg from '../../assets/confetti.svg';
 const logo = require('../../assets/splash.png');
 const OnBoarding = ({ navigation }: any) => {
   const pressGetStarted = () => {
-    navigation.navigate('Signin');
+    navigation.navigate('Signup');
   };
 
   return (

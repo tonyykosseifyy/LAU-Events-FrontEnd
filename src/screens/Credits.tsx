@@ -68,6 +68,13 @@ const Credits = () => {
           }}>
           - Salim
         </TextWrapper>
+        <TextWrapper
+          className="text-black text-base mt-2 ml-5 underline"
+          onPress={() => {
+            Linking.openURL('https://github.com/Murf-y');
+          }}>
+          - Elio Tannous
+        </TextWrapper>
       </View>
     </SafeAreaView>
   );

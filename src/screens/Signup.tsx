@@ -8,7 +8,7 @@ import {
   TouchableHighlight,
 } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
-import React, { useEffect } from 'react';
+import React, { useEffect, useState } from 'react';
 import TextWrapper from '../components/TextWrapper';
 import { yupResolver } from '@hookform/resolvers/yup';
 import LogoNoText from '../../assets/logo_no_text.svg';
@@ -17,15 +17,18 @@ import { Controller, Form, useForm } from 'react-hook-form';
 import { useAuth } from '../context/AuthContext';
 import { isAxiosError, unWrapAuthError } from '../utils/errors';
 import { AxiosError } from 'axios';
-import { UserRole } from '../models/user';
 import { API_URL } from '@env';
+import SelectDropdown from 'react-native-select-dropdown';
+import { LAU_MAJORS } from '../constants';
+import { UserRole } from '../models/user';
 
-type SignInForm = {
+type SignUpForm = {
   email: string;
   password: string;
+  major: string;
 };
 
-const SignInFormSchema = yup.object().shape({
+const SignUpFormSchema = yup.object().shape({
   email: yup
     .string()
     .email('Invalid email')
@@ -35,21 +38,23 @@ const SignInFormSchema = yup.object().shape({
     .string()
     .required('Password is required')
     .min(8, 'Password must be at least 8 characters'),
+  // major should be of type LauMajor
+  major: yup.string().required('Major is required'),
 });
 
-const Signin = ({ navigation }: any) => {
-  const { authState, signIn } = useAuth();
+const Signup = ({ navigation }: any) => {
+  const { authState, signUp } = useAuth();
   const {
     control,
     getValues,
     trigger,
     formState: { errors, isValid },
-  } = useForm<SignInForm>({
-    resolver: yupResolver(SignInFormSchema),
+  } = useForm<SignUpForm>({
+    resolver: yupResolver(SignUpFormSchema),
   });
 
-  const [signinError, setSigninError] = React.useState<string | null>(null);
-
+  const [signupError, setSignupError] = useState<string | null>(null);
+  const [dropDownTextColor, setDropDownTextColor] = useState<string>('#AAAAAA');
   useEffect(() => {
     // only if it set to false then we go to verification
     // if it was null, we go to signin page
@@ -65,13 +70,13 @@ const Signin = ({ navigation }: any) => {
     }
   }, [authState]);
 
-  const onSubmit = async (data: SignInForm) => {
-    setSigninError(null);
+  const onSubmit = async (data: SignUpForm) => {
+    setSignupError(null);
     try {
-      await signIn(data);
+      await signUp(data);
     } catch (e) {
       if (isAxiosError(e)) {
-        setSigninError(unWrapAuthError(e as AxiosError));
+        setSignupError(unWrapAuthError(e as AxiosError));
       }
     }
   };
@@ -86,14 +91,14 @@ const Signin = ({ navigation }: any) => {
             <TextWrapper className="text-2xl text-brand">explorer!</TextWrapper>
           </View>
         </View>
-        <TextWrapper className="text-gray pt-16">
-          Please use your LAU e-mail username (only the part before @) and password.
+        <TextWrapper className="text-gray mt-8">
+          Please use your LAU e-mail and a new password.
         </TextWrapper>
 
-        {signinError && (
-          <TextWrapper className="text-error text-sm mt-3">{signinError}</TextWrapper>
+        {signupError && (
+          <TextWrapper className="text-error text-sm mt-3">{signupError}</TextWrapper>
         )}
-        <View className="flex flex-col w-full items-start justify-start mt-20">
+        <View className="flex flex-col w-full mt-8">
           <Controller
             control={control}
             name="email"
@@ -121,7 +126,7 @@ const Signin = ({ navigation }: any) => {
                 <TextInput
                   placeholder="Password"
                   onBlur={onBlur}
-                  className="border-b-[1px] border-gray w-full mt-14"
+                  className="border-b-[1px] border-gray w-full mt-9"
                   cursorColor="green"
                   textContentType="password"
                   secureTextEntry={true}
@@ -137,29 +142,84 @@ const Signin = ({ navigation }: any) => {
               </>
             )}
           />
+          <Controller
+            control={control}
+            name="major"
+            render={({ field: { onChange, onBlur, value } }) => (
+              <>
+                <SelectDropdown
+                  data={LAU_MAJORS}
+                  buttonStyle={{
+                    width: '100%',
+                    backgroundColor: '#EAF2EF',
+                    borderColor: '#AAAAAA',
+                    borderBottomWidth: 1,
+                    marginTop: 24,
+                    marginHorizontal: 0,
+                    paddingHorizontal: 0,
+                  }}
+                  onSelect={(selectedItem, index) => {
+                    onChange(selectedItem);
+                    setDropDownTextColor('green');
+                  }}
+                  buttonTextAfterSelection={(selectedItem, index) => {
+                    return selectedItem;
+                  }}
+                  rowTextForSelection={(item, index) => {
+                    return item;
+                  }}
+                  defaultButtonText="Select your major"
+                  buttonTextStyle={{
+                    color: dropDownTextColor,
+                    fontSize: 14,
+                    textAlign: 'left',
+                    marginHorizontal: 0,
+                    paddingHorizontal: 0,
+                  }}
+                  rowTextStyle={{
+                    textAlign: 'left',
+                  }}
+                  selectedRowTextStyle={{
+                    color: 'green',
+                  }}
+                  showsVerticalScrollIndicator={true}
+                  dropdownStyle={{
+                    backgroundColor: '#EAF2EF',
+                    borderColor: '#AAAAAA',
+                    borderWidth: 1,
+                    borderRadius: 5,
+                    padding: 8,
+                  }}
+                />
+                {errors.major && (
+                  <TextWrapper className="text-error text-sm">{errors.major.message}</TextWrapper>
+                )}
+              </>
+            )}
+          />
         </View>
         <View className="w-full flex flex-row items-center justify-between mt-12 z-10">
-          <TextWrapper className="text-black text-2xl">Sign in</TextWrapper>
+          <TextWrapper className="text-black text-2xl">Sign up</TextWrapper>
           <TouchableHighlight
             className="bg-brand rounded-full w-16 h-16 flex items-center justify-center"
             onPress={() => {
               trigger();
               if (isValid) {
-                const { email, password } = getValues();
-                onSubmit({ email, password });
+                const { email, password, major } = getValues();
+                onSubmit({ email, password, major });
               }
             }}>
             <Image source={require('../../assets/arrow-right.png')}></Image>
           </TouchableHighlight>
         </View>
         <View className="w-full flex flex-row items-center justify-between mt-5">
-          <TextWrapper className="text-gray text-sm">Don't have an account?</TextWrapper>
+          <TextWrapper className="text-gray text-sm">Already have an account?</TextWrapper>
           <TextWrapper
             className="text-gray text-sm underline"
             onPress={() => {
-              navigation.navigate('Signup');
+              navigation.navigate('Signin');
             }}>
-            Register Now
+            Sign in
           </TextWrapper>
         </View>
       </ScrollView>
@@ -167,4 +227,4 @@ const Signin = ({ navigation }: any) => {
   );
 };
 
-export default Signin;
+export default Signup;

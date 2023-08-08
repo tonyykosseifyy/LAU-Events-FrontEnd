@@ -22,6 +22,7 @@ export interface AuthState {
 interface AuthContextProps {
   signIn: (opts: { email: string; password: string }) => Promise<void>;
   signOut: () => void;
+  signUp: (opts: { email: string; password: string; major: string }) => Promise<void>;
   verify: (code: string) => Promise<void>;
   authState: AuthState;
 }
@@ -34,6 +35,7 @@ export function useAuth(): AuthContextProps {
     return {
       signIn: async () => {},
       signOut: () => {},
+      signUp: async () => {},
       verify: async () => {},
       authState: {
         user: null,
@@ -97,6 +99,13 @@ export function AuthProvider({ children }: PropsWithChildren) {
     []
   );
 
+  const signUp = useMemo(
+    () =>
+      async ({ email, password, major }: { email: string; password: string; major: string }) => {
+        // const res = await new AuthApi().signUp(email, password, major);
+      },
+    []
+  );
   const refresh = useMemo(
     () => async (state: AuthState) => {
       if (!state.user || !state.user.accessToken || !state.user.refreshToken) return;
@@ -257,6 +266,7 @@ export function AuthProvider({ children }: PropsWithChildren) {
     <AuthContext.Provider
       value={{
         signIn: credentialsSignIn,
+        signUp,
         signOut: async () => {
           await SecureStore.deleteItemAsync(SECURE_STORE_USER_KEY);
           setAuthState({

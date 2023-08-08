@@ -17,6 +17,10 @@ import { UserRole } from '../models/user';
 import Home from './user/Home';
 import EventDetails from './admin/EventDetails';
 import Verification from './Verification';
+import Signup from './Signup';
+import { EventDetails as UserEventDetails } from './user/EventDetails';
+import UserHome from './user/UserLayout';
+import DeclinedEvent from './user/DeclinedEvent';
 
 SplashScreen.preventAutoHideAsync();
 
@@ -99,11 +103,17 @@ export default function RootLayout() {
               <RootStack.Screen name="EventDetails" component={EventDetails} />
             </>
           ) : (
-            <RootStack.Screen name="Home" component={Home} />
+            <>
+              <RootStack.Screen name="UserHome" component={UserHome} />
+              <RootStack.Screen name="Home" component={Home} />
+              <RootStack.Screen name="DeclinedEvents" component={DeclinedEvent} />
+              <RootStack.Screen name="EventDetails" component={UserEventDetails} />
+            </>
           )
         ) : (
           <>
             <RootStack.Screen name="Signin" component={Signin} />
+            <RootStack.Screen name="Signup" component={Signup} />
             <RootStack.Screen name="Verification" component={Verification} />
             <RootStack.Screen name="OnBoarding" component={OnBoarding} />
           </>
