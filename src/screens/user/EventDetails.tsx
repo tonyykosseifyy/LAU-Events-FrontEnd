@@ -3,7 +3,7 @@ import React, { useEffect, useState } from 'react';
 import { EventApi } from '../../utils/api/crud/events';
 import useSession from '../../hooks/useSession';
 import { useAuth } from '../../context/AuthContext';
-import { Event } from '../../models/event';
+import { Event, EventStatus } from '../../models/event';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import WaveTopLeftSVG from '../../../assets/wave_top_left.svg';
 import WaveRightSVG from '../../../assets/wave_right.svg';
@@ -11,6 +11,8 @@ import ArrowRight from '../../../assets/Icons/arrow_right.svg';
 import TextWrapper from '../../components/TextWrapper';
 import Tag from '../../components/Tag';
 import dayjs from 'dayjs';
+import { UserEventApi } from '../../utils/api/crud/userEvent';
+import { UserEventStatus } from '../../models/userEvents';
 
 const event_placeholder = require('../../../assets/event_image_placeholder.png');
 
@@ -81,12 +83,35 @@ export const EventDetails = ({ route, navigation }: any) => {
           <Pressable
             className="bg-gray/40 px-6 py-2 rounded-lg"
             onPress={() => {
+              const userId = authContext.authState.user?.id;
+              const eventId = event?.id;
+              if (!userId || !eventId) return;
+
+              const userEventApi = new UserEventApi(session);
+              userEventApi.create({
+                userId,
+                eventId,
+                status: UserEventStatus.Declined,
+              });
               navigation.goBack();
             }}>
             <TextWrapper className="text-black text-base">Decline</TextWrapper>
           </Pressable>
           <View className="w-4" />
-          <Pressable className="bg-brand px-8 py-2 rounded-lg" onPress={() => {}}>
+          <Pressable
+            className="bg-brand px-8 py-2 rounded-lg"
+            onPress={() => {
+              const userId = authContext.authState.user?.id;
+              const eventId = event?.id;
+              if (!userId || !eventId) return;
+
+              const userEventApi = new UserEventApi(session);
+              userEventApi.create({
+                userId,
+                eventId,
+                status: UserEventStatus.Accepted,
+              });
+            }}>
             <TextWrapper className="text-white text-base">Accept</TextWrapper>
           </Pressable>
         </View>

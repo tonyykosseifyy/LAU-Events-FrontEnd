@@ -174,6 +174,7 @@ export function AuthProvider({ children }: PropsWithChildren) {
   const verify = useMemo(
     () => async (code: string) => {
       // this should exists because we need the userId to send the verification request
+      console.log(authState);
       if (!authState.user || !authState.user.id) return;
 
       try {

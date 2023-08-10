@@ -95,7 +95,9 @@ const ClubDetails = ({ route, navigation }: any) => {
         <View className="flex flex-col h-full mt-2">
           <TextWrapper className="text-xl text-black">{club?.clubName}</TextWrapper>
           <View className="h-2" />
-          <TextWrapper className="text-sm text-gray">Added on: {club?.createdAt}</TextWrapper>
+          <TextWrapper className="text-sm text-gray">
+            Added on: {dayjs(club?.createdAt).format('DD/MM/YYYY')}
+          </TextWrapper>
         </View>
       </View>
       <View className="w-full flex justify-end  items-center flex-row">
