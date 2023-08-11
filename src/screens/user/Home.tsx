@@ -1,5 +1,5 @@
 import { View, Text, TextInput, Pressable } from 'react-native';
-import React, { useMemo, useState } from 'react';
+import React, { useEffect, useMemo, useState } from 'react';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import WaveTopRightSVG from '../../../assets/wave_top_right.svg';
 import TextWrapper from '../../components/TextWrapper';
@@ -63,26 +63,30 @@ const Home = ({ navigation }: any) => {
     ];
   }, []);
 
-  const updateFilters = () => {
+  useEffect(() => {
+    updateFilters();
+  }, []);
+
+  const updateFilters = (filterValue?: Fitler) => {
     if (!session) {
       setFilteredEvents([]);
       return;
     }
 
-    if (search && search.length > 0) {
+    if (search && search.length > 0 && !filterValue) {
       setFilteredEvents(
         events.filter((event) => {
           return event.eventName.toLowerCase().includes(search.toLowerCase());
         })
       );
-    } else if (filterUsed === Fitler.ALL) setFilteredEvents(events);
-    else if (filterUsed === Fitler.TODAY) {
+    } else if (filterValue === Fitler.ALL) setFilteredEvents(events);
+    else if (filterValue === Fitler.TODAY) {
       setFilteredEvents(
         events.filter((event) => {
           return dayjs(event.startTime).isSame(dayjs(), 'day');
         })
       );
-    } else if (filterUsed === Fitler.TOMORROW) {
+    } else if (filterValue === Fitler.TOMORROW) {
       setFilteredEvents(
         events.filter((event) => {
           return dayjs(event.startTime).isSame(dayjs().add(1, 'day'), 'day');
@@ -92,6 +96,7 @@ const Home = ({ navigation }: any) => {
       setFilteredEvents(events);
     }
   };
+
   return (
     <SafeAreaView className="bg-brand-lighter w-full h-full py-10 px-6">
       <View className="absolute top-0 right-0">
@@ -133,6 +138,7 @@ const Home = ({ navigation }: any) => {
             }`}
             onPress={() => {
               setFilterUsed(filter.value);
+              updateFilters(filter.value);
             }}>
             <TextWrapper
               className={`text-sm ${filterUsed === filter.value ? 'text-white' : 'text-gray'}`}>
@@ -143,16 +149,7 @@ const Home = ({ navigation }: any) => {
       </View>
       {filteredEvents && filteredEvents.length > 0 ? (
         <FlatList
-          data={events.filter((event) => {
-            if (filterUsed === Fitler.ALL) return true;
-            if (filterUsed === Fitler.TODAY) {
-              return dayjs(event.startTime).isSame(dayjs(), 'day');
-            }
-            if (filterUsed === Fitler.TOMORROW) {
-              return dayjs(event.startTime).isSame(dayjs().add(1, 'day'), 'day');
-            }
-            return true;
-          })}
+          data={filteredEvents}
           className="w-full mt-6"
           ItemSeparatorComponent={() => {
             return <View className="h-10" />; // space between items
