@@ -1,5 +1,6 @@
 import { Club } from '../club';
 import { User } from '../user';
+import { UserEventStatus } from '../userEvents';
 
 export interface Event {
   id: string;
@@ -14,6 +15,8 @@ export interface Event {
   createdAt: string;
   updatedAt: string;
   declinedUsers?: number;
+  userStatus?: UserEventStatus;
+  userEventId?: string;
 }
 
 export interface EventRequest {

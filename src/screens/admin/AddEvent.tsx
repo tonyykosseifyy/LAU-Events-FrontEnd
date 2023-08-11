@@ -19,6 +19,8 @@ import { EventApi } from '../../utils/api/crud/events';
 import { EventStatus } from '../../models/event';
 import { useQueryClient } from '@tanstack/react-query';
 import SelectDropdown from 'react-native-select-dropdown';
+import { isAxiosError } from 'axios';
+import { getAxiosError } from '../../utils/errors';
 
 type EventForm = {
   eventName: string;
@@ -64,7 +66,7 @@ const AddEvent = ({ navigation }: any) => {
     if (!session) return;
     const fetchClubs = async () => {
       const res = await new ClubApi(session).find();
-      setClubs(res);
+      setClubs(res.filter((i) => i.status === ClubStatus.ACTIVE));
     };
     fetchClubs();
   }, []);
@@ -75,6 +77,8 @@ const AddEvent = ({ navigation }: any) => {
   const [clubsError, setClubsError] = useState<string | null>(null);
   const [dropDowanTextColor, setDropDownTextColor] = useState<string>('#AAAAAA');
 
+  const [error, setError] = useState<string | null>(null);
+
   const toggleStartDatePicker = () => {
     setShowStartDatePicker(!showStartDatePicker);
   };
@@ -83,6 +87,7 @@ const AddEvent = ({ navigation }: any) => {
   };
 
   const onSubmit = async (data: EventForm) => {
+    setError(null);
     if (selectedClubs.length === 0) {
       setClubsError('Select at least one club');
       return;
@@ -106,13 +111,16 @@ const AddEvent = ({ navigation }: any) => {
         navigation.goBack();
       }
     } catch (e) {
+      if (isAxiosError(e)) {
+        setError(getAxiosError(e));
+      }
       console.log(e);
     }
   };
 
   return (
     <SafeAreaView className="w-full h-full">
-      <ScrollView className="bg-brand-lighter w-full h-full py-10 px-6">
+      <ScrollView className="bg-brand-lighter w-full h-full py-8 px-6">
         <View className="w-full flex justify-center items-center relative flex-row">
           <Pressable
             className="absolute left-4 w-10 h-10 flex justify-center items-center"
@@ -124,7 +132,8 @@ const AddEvent = ({ navigation }: any) => {
           <TextWrapper className="text-2xl">Add Event</TextWrapper>
         </View>
 
-        <View className="flex flex-col mt-10">
+        {error && <TextWrapper className="text-error mt-4">{error}</TextWrapper>}
+        <View className="flex flex-col mt-4">
           <Controller
             control={control}
             name="eventName"
@@ -180,11 +189,7 @@ const AddEvent = ({ navigation }: any) => {
             <TextWrapper className="text-base text-black mt-3">Clubs</TextWrapper>
             <View className="h-2" />
             <SelectDropdown
-              data={clubs
-                .filter((i) => {
-                  return i.status === ClubStatus.ACTIVE;
-                })
-                .map((i) => i.clubName)}
+              data={clubs.map((i) => i.clubName)}
               onSelect={(selectedItem, index) => {
                 if (selectedClubs.find((i) => i.id === clubs[index].id)) {
                   // if already selected remove it

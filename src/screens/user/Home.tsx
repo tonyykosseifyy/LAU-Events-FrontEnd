@@ -1,5 +1,5 @@
 import { View, Text, TextInput, Pressable } from 'react-native';
-import React, { useMemo, useState } from 'react';
+import React, { useEffect, useMemo, useState } from 'react';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import WaveTopRightSVG from '../../../assets/wave_top_right.svg';
 import TextWrapper from '../../components/TextWrapper';
@@ -11,7 +11,7 @@ import useSession from '../../hooks/useSession';
 import { EventApi } from '../../utils/api/crud/events';
 import { FlatList } from 'react-native-gesture-handler';
 import EventCard from '../../components/EventCard';
-
+import { Event } from '../../models/event';
 enum Fitler {
   ALL = 'all',
   TODAY = 'today',
@@ -22,6 +22,7 @@ const Home = ({ navigation }: any) => {
   const authContext = useAuth();
   const session = useSession(authContext.authState);
 
+  const [search, setSearch] = useState('');
   const [filterUsed, setFilterUsed] = useState<Fitler>(Fitler.ALL);
 
   const { data: events } = useQuery(
@@ -43,21 +44,7 @@ const Home = ({ navigation }: any) => {
     }
   );
 
-  const filteredEvents = useMemo(() => {
-    if (!session) return [];
-    if (filterUsed === Fitler.ALL) return events;
-    if (filterUsed === Fitler.TODAY) {
-      return events.filter((event) => {
-        return dayjs(event.startTime).isSame(dayjs(), 'day');
-      });
-    }
-    if (filterUsed === Fitler.TOMORROW) {
-      return events.filter((event) => {
-        return dayjs(event.startTime).isSame(dayjs().add(1, 'day'), 'day');
-      });
-    }
-    return events;
-  }, [filterUsed, events]);
+  const [filteredEvents, setFilteredEvents] = useState<Event[]>(events);
 
   const filters = useMemo(() => {
     return [
@@ -76,6 +63,40 @@ const Home = ({ navigation }: any) => {
     ];
   }, []);
 
+  useEffect(() => {
+    updateFilters();
+  }, []);
+
+  const updateFilters = (filterValue?: Fitler) => {
+    if (!session) {
+      setFilteredEvents([]);
+      return;
+    }
+
+    if (search && search.length > 0 && !filterValue) {
+      setFilteredEvents(
+        events.filter((event) => {
+          return event.eventName.toLowerCase().includes(search.toLowerCase());
+        })
+      );
+    } else if (filterValue === Fitler.ALL) setFilteredEvents(events);
+    else if (filterValue === Fitler.TODAY) {
+      setFilteredEvents(
+        events.filter((event) => {
+          return dayjs(event.startTime).isSame(dayjs(), 'day');
+        })
+      );
+    } else if (filterValue === Fitler.TOMORROW) {
+      setFilteredEvents(
+        events.filter((event) => {
+          return dayjs(event.startTime).isSame(dayjs().add(1, 'day'), 'day');
+        })
+      );
+    } else {
+      setFilteredEvents(events);
+    }
+  };
+
   return (
     <SafeAreaView className="bg-brand-lighter w-full h-full py-10 px-6">
       <View className="absolute top-0 right-0">
@@ -90,8 +111,23 @@ const Home = ({ navigation }: any) => {
         <TextInput
           className="bg-white-600 px-4 py-4 rounded-full w-full mt-14 relative"
           placeholder="Search by Event"
+          value={search}
+          onChange={(e) => {
+            setSearch(e.nativeEvent.text);
+          }}
+          onSubmitEditing={() => {
+            updateFilters();
+            // reset the search
+            setSearch('');
+          }}
           cursorColor="green"></TextInput>
-        <Pressable className="bg-brand absolute bottom-2 right-2 rounded-full p-3 flex items-center justify-center">
+        <Pressable
+          className="bg-brand absolute bottom-2 right-2 rounded-full p-3 flex items-center justify-center"
+          onPress={() => {
+            updateFilters();
+            // reset the search
+            setSearch('');
+          }}>
           <SearchSVG color="white" />
         </Pressable>
       </View>
@@ -106,6 +142,7 @@ const Home = ({ navigation }: any) => {
             }`}
             onPress={() => {
               setFilterUsed(filter.value);
+              updateFilters(filter.value);
             }}>
             <TextWrapper
               className={`text-sm ${filterUsed === filter.value ? 'text-white' : 'text-gray'}`}>
@@ -116,16 +153,7 @@ const Home = ({ navigation }: any) => {
       </View>
       {filteredEvents && filteredEvents.length > 0 ? (
         <FlatList
-          data={events.filter((event) => {
-            if (filterUsed === Fitler.ALL) return true;
-            if (filterUsed === Fitler.TODAY) {
-              return dayjs(event.startTime).isSame(dayjs(), 'day');
-            }
-            if (filterUsed === Fitler.TOMORROW) {
-              return dayjs(event.startTime).isSame(dayjs().add(1, 'day'), 'day');
-            }
-            return true;
-          })}
+          data={filteredEvents}
           className="w-full mt-6"
           ItemSeparatorComponent={() => {
             return <View className="h-10" />; // space between items
