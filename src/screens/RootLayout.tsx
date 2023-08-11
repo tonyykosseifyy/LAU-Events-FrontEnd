@@ -58,11 +58,6 @@ export default function RootLayout() {
     ScreenOrientation.lockAsync(ScreenOrientation.OrientationLock.PORTRAIT_UP);
   }, []);
 
-  console.log({
-    firstLaunch,
-    authState,
-  });
-
   const [initialRouteName, setInitialRouteName] = useState<string>('OnBoarding');
 
   useEffect(() => {

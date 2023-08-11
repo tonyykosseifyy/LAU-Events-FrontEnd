@@ -117,12 +117,16 @@ const Home = ({ navigation }: any) => {
           }}
           onSubmitEditing={() => {
             updateFilters();
+            // reset the search
+            setSearch('');
           }}
           cursorColor="green"></TextInput>
         <Pressable
           className="bg-brand absolute bottom-2 right-2 rounded-full p-3 flex items-center justify-center"
           onPress={() => {
             updateFilters();
+            // reset the search
+            setSearch('');
           }}>
           <SearchSVG color="white" />
         </Pressable>
