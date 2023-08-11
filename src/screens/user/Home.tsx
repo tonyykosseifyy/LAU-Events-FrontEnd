@@ -11,7 +11,7 @@ import useSession from '../../hooks/useSession';
 import { EventApi } from '../../utils/api/crud/events';
 import { FlatList } from 'react-native-gesture-handler';
 import EventCard from '../../components/EventCard';
-
+import { Event } from '../../models/event';
 enum Fitler {
   ALL = 'all',
   TODAY = 'today',
@@ -22,6 +22,7 @@ const Home = ({ navigation }: any) => {
   const authContext = useAuth();
   const session = useSession(authContext.authState);
 
+  const [search, setSearch] = useState('');
   const [filterUsed, setFilterUsed] = useState<Fitler>(Fitler.ALL);
 
   const { data: events } = useQuery(
@@ -43,21 +44,7 @@ const Home = ({ navigation }: any) => {
     }
   );
 
-  const filteredEvents = useMemo(() => {
-    if (!session) return [];
-    if (filterUsed === Fitler.ALL) return events;
-    if (filterUsed === Fitler.TODAY) {
-      return events.filter((event) => {
-        return dayjs(event.startTime).isSame(dayjs(), 'day');
-      });
-    }
-    if (filterUsed === Fitler.TOMORROW) {
-      return events.filter((event) => {
-        return dayjs(event.startTime).isSame(dayjs().add(1, 'day'), 'day');
-      });
-    }
-    return events;
-  }, [filterUsed, events]);
+  const [filteredEvents, setFilteredEvents] = useState<Event[]>([]);
 
   const filters = useMemo(() => {
     return [
@@ -76,6 +63,35 @@ const Home = ({ navigation }: any) => {
     ];
   }, []);
 
+  const updateFilters = () => {
+    if (!session) {
+      setFilteredEvents([]);
+      return;
+    }
+
+    if (search && search.length > 0) {
+      setFilteredEvents(
+        events.filter((event) => {
+          return event.eventName.toLowerCase().includes(search.toLowerCase());
+        })
+      );
+    } else if (filterUsed === Fitler.ALL) setFilteredEvents(events);
+    else if (filterUsed === Fitler.TODAY) {
+      setFilteredEvents(
+        events.filter((event) => {
+          return dayjs(event.startTime).isSame(dayjs(), 'day');
+        })
+      );
+    } else if (filterUsed === Fitler.TOMORROW) {
+      setFilteredEvents(
+        events.filter((event) => {
+          return dayjs(event.startTime).isSame(dayjs().add(1, 'day'), 'day');
+        })
+      );
+    } else {
+      setFilteredEvents(events);
+    }
+  };
   return (
     <SafeAreaView className="bg-brand-lighter w-full h-full py-10 px-6">
       <View className="absolute top-0 right-0">
@@ -90,8 +106,19 @@ const Home = ({ navigation }: any) => {
         <TextInput
           className="bg-white-600 px-4 py-4 rounded-full w-full mt-14 relative"
           placeholder="Search by Event"
+          value={search}
+          onChange={(e) => {
+            setSearch(e.nativeEvent.text);
+          }}
+          onSubmitEditing={() => {
+            updateFilters();
+          }}
           cursorColor="green"></TextInput>
-        <Pressable className="bg-brand absolute bottom-2 right-2 rounded-full p-3 flex items-center justify-center">
+        <Pressable
+          className="bg-brand absolute bottom-2 right-2 rounded-full p-3 flex items-center justify-center"
+          onPress={() => {
+            updateFilters();
+          }}>
           <SearchSVG color="white" />
         </Pressable>
       </View>
