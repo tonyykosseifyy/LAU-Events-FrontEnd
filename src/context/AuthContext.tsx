@@ -174,12 +174,13 @@ export function AuthProvider({ children }: PropsWithChildren) {
   const verify = useMemo(
     () => async (code: string) => {
       // this should exists because we need the userId to send the verification request
-      console.log(authState);
-      if (!authState.user || !authState.user.id) return;
+      const storedUser = await SecureStore.getItemAsync(SECURE_STORE_USER_KEY);
+      if (!storedUser) return;
+      const user = JSON.parse(storedUser) as User;
 
       try {
         const { accessToken, email, refreshToken, id, createdAt, major } =
-          await new AuthApi().verify(code, authState.user.id.toString());
+          await new AuthApi().verify(code, user.id.toString());
 
         const role: UserRole = (jwt_decode(accessToken) as { role: UserRole }).role;
 
