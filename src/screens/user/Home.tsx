@@ -44,7 +44,7 @@ const Home = ({ navigation }: any) => {
     }
   );
 
-  const [filteredEvents, setFilteredEvents] = useState<Event[]>([]);
+  const [filteredEvents, setFilteredEvents] = useState<Event[]>(events);
 
   const filters = useMemo(() => {
     return [
