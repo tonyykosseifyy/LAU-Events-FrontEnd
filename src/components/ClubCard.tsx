@@ -13,7 +13,6 @@ const ClubCard: FC<{ club: Club; navigation: any }> = ({ club, navigation }) => 
     });
   };
 
-  console.log(club);
   return (
     <View
       className={clsx(

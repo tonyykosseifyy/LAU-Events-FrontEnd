@@ -81,7 +81,6 @@ const Signup = ({ navigation }: any) => {
       navigation.navigate('Verification');
     } catch (e) {
       if (isAxiosError(e)) {
-        console.log(e.response?.data);
         setSignupError(unWrapAuthError(e as AxiosError));
       } else {
         setSignupError('Something went wrong, please try again!');

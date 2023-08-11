@@ -26,7 +26,8 @@
         "foregroundImage": "./assets/adaptive-icon.png",
         "backgroundColor": "#ffffff"
       },
-      "package": "com.murffyy.LAUEventsAppFrontend"
+      "package": "com.murffyy.LAUEventsAppFrontend",
+      "permissions": ["READ_CALENDAR", "WRITE_CALENDAR"]
     },
     "web": {
       "favicon": "./assets/favicon.png"
@@ -35,6 +36,14 @@
       "eas": {
         "projectId": "a9536565-bf98-4842-a7b9-07b3a85f11f3"
       }
-    }
+    },
+    "plugins": [
+      [
+        "expo-calendar",
+        {
+          "calendarPermission": "The app needs to access your calendar, to add events to it."
+        }
+      ]
+    ]
   }
 }

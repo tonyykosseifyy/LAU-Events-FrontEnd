@@ -13,6 +13,9 @@ import Tag from '../../components/Tag';
 import dayjs from 'dayjs';
 import { UserEventApi } from '../../utils/api/crud/userEvent';
 import { UserEventStatus } from '../../models/userEvents';
+import { isAxiosError } from 'axios';
+import { getAxiosError } from '../../utils/errors';
+import * as Calendar from 'expo-calendar';
 
 const event_placeholder = require('../../../assets/event_image_placeholder.png');
 
@@ -30,7 +33,7 @@ export const EventDetails = ({ route, navigation }: any) => {
 
     try {
       const getEvent = async () => {
-        const res = await new EventApi(session).findOneWithDetails(eventId);
+        const res = await new EventApi(session).findOne(eventId);
         setEvent(res);
       };
       getEvent();
@@ -39,6 +42,171 @@ export const EventDetails = ({ route, navigation }: any) => {
       authContext.signOut();
     }
   }, []);
+
+  const requestCalendarPermission = async () => {
+    const { status } = await Calendar.requestCalendarPermissionsAsync();
+    if (status === 'granted') {
+      return true;
+    }
+    return false;
+  };
+
+  const createUserEventEntry = async (status: UserEventStatus, eventId: string) => {
+    try {
+      const userEventApi = new UserEventApi(session);
+      userEventApi.create({
+        eventId,
+        status,
+      });
+    } catch (e) {
+      if (isAxiosError(e)) {
+        console.log(getAxiosError(e));
+      }
+    }
+  };
+
+  const updateUserEventEntry = async (status: UserEventStatus, userEventId: string) => {
+    try {
+      const userEventApi = new UserEventApi(session);
+      userEventApi.update(userEventId, {
+        status,
+      });
+    } catch (e) {
+      if (isAxiosError(e)) {
+        console.log(getAxiosError(e));
+      }
+    }
+  };
+
+  const eventControlButtons = () => {
+    // if user already accepted the event
+    if (event?.userStatus === UserEventStatus.Accepted) {
+      return (
+        <View className="flex flex-row justify-between mt-10 items-center">
+          <TextWrapper className="text-base">Already Accepted this event</TextWrapper>
+          <Pressable
+            className="bg-error px-6 py-2 rounded-lg"
+            onPress={async () => {
+              const eventId = event?.id;
+              if (!eventId || !event.userEventId) return;
+              updateUserEventEntry(UserEventStatus.Declined, event.userEventId);
+              // remove event from calendar
+
+              const permission = await requestCalendarPermission();
+              if (!permission) {
+                return;
+              }
+              const calendarId = await Calendar.getCalendarsAsync();
+              const events = await Calendar.getEventsAsync(
+                [calendarId[0].id],
+                event.startTime,
+                event.endTime
+              );
+
+              if (events.length > 0) {
+                Calendar.deleteEventAsync(events[0].id);
+              }
+
+              navigation.goBack();
+            }}>
+            <TextWrapper className="text-black text-base">Decline</TextWrapper>
+          </Pressable>
+        </View>
+      );
+    }
+
+    // if user already declined the event
+    if (event?.userStatus === UserEventStatus.Declined) {
+      return (
+        <View className="flex flex-row justify-between mt-10 items-center">
+          <TextWrapper className="text-base">Already Declined this event</TextWrapper>
+          <Pressable
+            className="bg-brand px-6 py-2 rounded-lg"
+            onPress={async () => {
+              const eventId = event?.id;
+              if (!eventId || !event.userEventId) return;
+
+              updateUserEventEntry(UserEventStatus.Accepted, event.userEventId);
+
+              // user expo calendar to add event to calendar
+              const eventDetails = {
+                title: event?.eventName,
+                startDate: event?.startTime,
+                endDate: event?.endTime,
+              };
+
+              const userEventApi = new UserEventApi(session);
+              userEventApi.update(event.userEventId, {
+                status: UserEventStatus.Accepted,
+              });
+
+              // request permission to access calendar
+              const permission = await requestCalendarPermission();
+              if (!permission) {
+                return;
+              }
+              const calendarId = await Calendar.getCalendarsAsync();
+              Calendar.createEventAsync(calendarId[0].id, eventDetails);
+              navigation.goBack();
+            }}>
+            <TextWrapper className="text-white text-base">Accept</TextWrapper>
+          </Pressable>
+        </View>
+      );
+    }
+
+    if (dayjs(event?.startTime).isAfter(dayjs())) {
+      return (
+        <View className="flex flex-row justify-between items-center">
+          <View className="flex flex-row w-full justify-between items-center mt-10">
+            <Pressable
+              className="bg-gray/40 px-6 py-2 rounded-lg"
+              onPress={() => {
+                const eventId = event?.id;
+                if (!eventId) return;
+                createUserEventEntry(UserEventStatus.Declined, eventId);
+                navigation.goBack();
+              }}>
+              <TextWrapper className="text-black text-base">Decline</TextWrapper>
+            </Pressable>
+            <View className="w-4" />
+            <Pressable
+              className="bg-brand px-8 py-2 rounded-lg"
+              onPress={async () => {
+                const eventId = event?.id;
+                if (!eventId) return;
+                createUserEventEntry(UserEventStatus.Accepted, eventId);
+                // user expo calendar to add event to calendar
+                const eventDetails = {
+                  title: event?.eventName,
+                  startDate: event?.startTime,
+                  endDate: event?.endTime,
+                };
+
+                // request permission to access calendar
+                const permission = await requestCalendarPermission();
+                if (!permission) {
+                  return;
+                }
+                const calendarId = await Calendar.getCalendarsAsync();
+                Calendar.createEventAsync(calendarId[0].id, eventDetails);
+                navigation.goBack();
+              }}>
+              <TextWrapper className="text-white text-base">Accept</TextWrapper>
+            </Pressable>
+          </View>
+        </View>
+      );
+    } else {
+      return (
+        <View className="flex flex-row justify-between items-center">
+          <TextWrapper className="text-2xl">
+            Event have already passed check out other events!
+          </TextWrapper>
+        </View>
+      );
+    }
+  };
 
   return (
     <SafeAreaView className="w-full h-full bg-brand-lighter relative py-10 px-8 flex justify-between">
@@ -78,44 +246,7 @@ export const EventDetails = ({ route, navigation }: any) => {
         <TextWrapper className="text-black font-bold text-base mt-2">Description</TextWrapper>
         <TextWrapper className="text-gray text-xs mt-2">{event?.eventDescription}</TextWrapper>
       </View>
-      <View className="flex flex-row justify-between items-center">
-        <View className="flex flex-row w-full justify-between items-center mt-10">
-          <Pressable
-            className="bg-gray/40 px-6 py-2 rounded-lg"
-            onPress={() => {
-              const userId = authContext.authState.user?.id;
-              const eventId = event?.id;
-              if (!userId || !eventId) return;
-
-              const userEventApi = new UserEventApi(session);
-              userEventApi.create({
-                userId,
-                eventId,
-                status: UserEventStatus.Declined,
-              });
-              navigation.goBack();
-            }}>
-            <TextWrapper className="text-black text-base">Decline</TextWrapper>
-          </Pressable>
-          <View className="w-4" />
-          <Pressable
-            className="bg-brand px-8 py-2 rounded-lg"
-            onPress={() => {
-              const userId = authContext.authState.user?.id;
-              const eventId = event?.id;
-              if (!userId || !eventId) return;
-
-              const userEventApi = new UserEventApi(session);
-              userEventApi.create({
-                userId,
-                eventId,
-                status: UserEventStatus.Accepted,
-              });
-            }}>
-            <TextWrapper className="text-white text-base">Accept</TextWrapper>
-          </Pressable>
-        </View>
-      </View>
+      {eventControlButtons()}
     </SafeAreaView>
   );
 };

@@ -3,8 +3,7 @@ export interface UserEvent {
 }
 
 export interface UserEventRequest {
-  userId: string;
-  eventId: string;
+  eventId?: string;
   status: UserEventStatus;
 }
 

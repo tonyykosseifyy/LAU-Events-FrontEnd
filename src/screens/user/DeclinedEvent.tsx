@@ -15,7 +15,7 @@ const DeclinedEvent = ({ navigation }: any) => {
   const session = useSession(authContext.authState);
 
   const { data: events } = useQuery(
-    ['events', session],
+    ['declinedEvents', session],
     async () => {
       const eventsApi = new EventApi(session);
       try {
@@ -29,8 +29,8 @@ const DeclinedEvent = ({ navigation }: any) => {
     },
     {
       enabled: !!session,
-      cacheTime: 1000 * 60,
-      refetchInterval: 1000 * 60,
+      cacheTime: 1000 * 10,
+      refetchInterval: 1000 * 10,
       initialData: [],
     }
   );
