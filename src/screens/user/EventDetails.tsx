@@ -16,12 +16,14 @@ import { UserEventStatus } from '../../models/userEvents';
 import { isAxiosError } from 'axios';
 import { getAxiosError } from '../../utils/errors';
 import * as Calendar from 'expo-calendar';
+import { useQueryClient } from '@tanstack/react-query';
 
 const event_placeholder = require('../../../assets/event_image_placeholder.png');
 
 export const EventDetails = ({ route, navigation }: any) => {
   const { eventId } = route.params;
   const authContext = useAuth();
+  const queryClient = useQueryClient();
   const session = useSession(authContext.authState);
 
   const [event, setEvent] = useState<Event | null>(null);
@@ -58,6 +60,8 @@ export const EventDetails = ({ route, navigation }: any) => {
         eventId,
         status,
       });
+      queryClient.invalidateQueries(['declinedEvents']);
+      queryClient.refetchQueries(['declinedEvents']);
     } catch (e) {
       if (isAxiosError(e)) {
         console.log(getAxiosError(e));
@@ -71,6 +75,9 @@ export const EventDetails = ({ route, navigation }: any) => {
       userEventApi.update(userEventId, {
         status,
       });
+
+      queryClient.invalidateQueries(['declinedEvents']);
+      queryClient.refetchQueries(['declinedEvents']);
     } catch (e) {
       if (isAxiosError(e)) {
         console.log(getAxiosError(e));
