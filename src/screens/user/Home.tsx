@@ -12,6 +12,7 @@ import { EventApi } from '../../utils/api/crud/events';
 import { FlatList } from 'react-native-gesture-handler';
 import EventCard from '../../components/EventCard';
 import { Event } from '../../models/event';
+
 enum Fitler {
   ALL = 'all',
   TODAY = 'today',
@@ -21,39 +22,10 @@ enum Fitler {
 const Home = ({ navigation }: any) => {
   const authContext = useAuth();
   const session = useSession(authContext.authState);
-  const [showLoading, setShowLoading] = useState(true);
+
   const [search, setSearch] = useState('');
+  const [filteredEvents, setFilteredEvents] = useState<Event[]>([]);
   const [filterUsed, setFilterUsed] = useState<Fitler>(Fitler.ALL);
-
-  const { data: events } = useQuery(
-    ['events', session],
-    async () => {
-      const eventsApi = new EventApi(session);
-      const res = await eventsApi.find();
-      // filter the old events out
-
-      return res.filter((event) => {
-        return dayjs(event.startTime).isAfter(dayjs());
-      });
-    },
-    {
-      enabled: !!session,
-      cacheTime: 1000 * 10, // 10 seconds
-      refetchInterval: 1000 * 10,
-      refetchOnMount: true,
-      refetchOnWindowFocus: true,
-      retryDelay: 1000 * 1,
-      initialData: [],
-
-      onSuccess: (data) => {
-        updateFilters();
-        setShowLoading(false);
-      },
-    }
-  );
-
-  const [filteredEvents, setFilteredEvents] = useState<Event[]>(events);
-
   const filters = useMemo(() => {
     return [
       {
@@ -71,8 +43,29 @@ const Home = ({ navigation }: any) => {
     ];
   }, []);
 
+  const { data: events, isLoading } = useQuery(
+    ['events', session],
+    async () => {
+      const eventsApi = new EventApi(session);
+      const res = await eventsApi.find();
+      // filter the old events out
+
+      return res.filter((event) => {
+        return dayjs(event.startTime).isAfter(dayjs());
+      });
+    },
+    {
+      enabled: !!session,
+      cacheTime: 1000 * 10, // 10 seconds
+      refetchInterval: 1000 * 10,
+      onSuccess: (data) => {
+        setFilteredEvents(data);
+      },
+    }
+  );
+
   const updateFilters = (filterValue?: Fitler) => {
-    if (!session) {
+    if (!session || !events) {
       setFilteredEvents([]);
       return;
     }
@@ -155,7 +148,7 @@ const Home = ({ navigation }: any) => {
           </Pressable>
         ))}
       </View>
-      {showLoading ? (
+      {isLoading || !events ? (
         <View className="mt-16 flex items-center justify-center">
           <ActivityIndicator size="large" color="green" />
         </View>

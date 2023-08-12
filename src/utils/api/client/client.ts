@@ -9,7 +9,7 @@ AxiosLogger.setGlobalConfig({
 
 export function createClient(session?: Session): AxiosInstance {
   let config: AxiosRequestConfig = {
-    baseURL: 'http://192.168.0.106:3000',
+    baseURL: 'http://192.168.0.101:3000',
   };
   if (session) {
     config = {
