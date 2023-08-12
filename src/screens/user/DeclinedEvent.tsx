@@ -1,4 +1,4 @@
-import { View, Text, Pressable, FlatList } from 'react-native';
+import { View, Text, Pressable, FlatList, ActivityIndicator } from 'react-native';
 import React from 'react';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import TextWrapper from '../../components/TextWrapper';
@@ -14,7 +14,7 @@ const DeclinedEvent = ({ navigation }: any) => {
   const authContext = useAuth();
   const session = useSession(authContext.authState);
 
-  const { data: events } = useQuery(
+  const { data: events, isLoading } = useQuery(
     ['declinedEvents', session],
     async () => {
       const eventsApi = new EventApi(session);
@@ -31,7 +31,6 @@ const DeclinedEvent = ({ navigation }: any) => {
       enabled: !!session,
       cacheTime: 1000 * 10,
       refetchInterval: 1000 * 10,
-      initialData: [],
     }
   );
 
@@ -44,7 +43,11 @@ const DeclinedEvent = ({ navigation }: any) => {
         <TextWrapper className="text-2xl text-black">Declined Events</TextWrapper>
       </View>
       <View className="h-fit w-full mt-14">
-        {events && events.length > 0 ? (
+        {!events || isLoading ? (
+          <View className="mt-16 flex items-center justify-center">
+            <ActivityIndicator size="large" color="green" />
+          </View>
+        ) : events.length > 0 ? (
           <FlatList
             data={events}
             className="w-full"
