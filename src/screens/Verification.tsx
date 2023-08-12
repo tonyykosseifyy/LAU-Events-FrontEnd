@@ -61,7 +61,6 @@ const Verification = ({ navigation }: any) => {
     setVerifyError(null);
     setIsSubmitting(true);
     try {
-      console.log(data.code);
       await verify(data.code);
       setIsSubmitting(false);
     } catch (e) {
