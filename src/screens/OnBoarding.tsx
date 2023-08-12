@@ -1,11 +1,16 @@
 import { View, Image, Pressable } from 'react-native';
-import React from 'react';
+import React, { useEffect } from 'react';
 import TextWrapper from '../components/TextWrapper';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import ConfettiSvg from '../../assets/confetti.svg';
+import AsyncStorage from '@react-native-async-storage/async-storage';
 
 const logo = require('../../assets/splash.png');
+
 const OnBoarding = ({ navigation }: any) => {
+  useEffect(() => {
+    AsyncStorage.setItem('appLaunched', 'false');
+  }, []);
   const pressGetStarted = () => {
     navigation.navigate('Signup');
   };

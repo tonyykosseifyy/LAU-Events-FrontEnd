@@ -37,7 +37,6 @@ export default function RootLayout() {
         AsyncStorage.setItem('appLaunched', 'false');
       } else {
         setFirstLaunch(false);
-        AsyncStorage.removeItem('appLaunched');
       }
     }
     setData();
