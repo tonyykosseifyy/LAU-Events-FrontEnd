@@ -3,6 +3,8 @@ import React from 'react';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import WaveTopLeftSVG from '../../assets/wave_top_left.svg';
 import TextWrapper from '../components/TextWrapper';
+import ClubLogoSVG from '../../assets/club_logo.svg';
+
 const Credits = () => {
   return (
     <SafeAreaView className="w-full h-full bg-brand-lighter relative py-10 px-6">
@@ -13,9 +15,13 @@ const Credits = () => {
         <TextWrapper className="text-2xl">Credits</TextWrapper>
       </View>
       <View className="w-full mt-12 flex flex-col">
-        <TextWrapper className="text-black text-xl font-bold">
-          By the Software Engineering Club
-        </TextWrapper>
+        <View className="flex flex-row items-center justify-center">
+          <ClubLogoSVG width={55} height={55}></ClubLogoSVG>
+          <View className="w-3"></View>
+          <TextWrapper className="text-black text-xl font-bold">
+            Software Engineering Club
+          </TextWrapper>
+        </View>
         <View className="w-full flex flex-row justify-between mt-2">
           <View className="flex flex-col border-b-[1px] border-black/10 pb-8">
             <TextWrapper className="text-black text-xl mt-2">Frontend Devs</TextWrapper>
@@ -29,7 +35,7 @@ const Credits = () => {
             <TextWrapper
               className="text-black text-base mt-2 ml-5 underline"
               onPress={() => {
-                Linking.openURL('https://github.com/Pdaaboul');
+                Linking.openURL('https://www.linkedin.com/in/peter-chahid-55991b262');
               }}>
               - Peter Daaboul
             </TextWrapper>
@@ -40,14 +46,14 @@ const Credits = () => {
             <TextWrapper
               className="text-black text-base mt-2 ml-5 underline"
               onPress={() => {
-                Linking.openURL('https://github.com/JeanPaulBassil');
+                Linking.openURL('https://www.linkedin.com/in/jean-paul-bassil');
               }}>
-              - JeanPaul Bassil
+              - Jean-Paul Bassil
             </TextWrapper>
             <TextWrapper
               className="text-black text-base mt-2 ml-5 underline"
               onPress={() => {
-                Linking.openURL('https://github.com/tonyykosseifyy');
+                Linking.openURL('https://www.linkedin.com/in/tonyy-kosseifyy/');
               }}>
               - Tony Kosseify
             </TextWrapper>
@@ -59,75 +65,41 @@ const Credits = () => {
             <TextWrapper
               className="text-black text-base mt-2 ml-5 underline"
               onPress={() => {
-                Linking.openURL('https://github.com/Murf-y');
+                Linking.openURL('https://www.linkedin.com/in/elio-anthony-chukri/');
               }}>
               - Elio Chukri
             </TextWrapper>
-            <TextWrapper
-              className="text-black text-base mt-2 ml-5 underline"
-              onPress={() => {
-                Linking.openURL('https://github.com/Murf-y');
-              }}>
-              - Elia Tannous
-            </TextWrapper>
-          </View>
-          <View className="w-[1px] h-full bg-black/10 rounded-full"></View>
-          <View className="flex flex-col">
-            <TextWrapper className="text-black text-xl mt-2">UR/SR</TextWrapper>
-            <TextWrapper
-              className="text-black text-base mt-2 ml-5 underline"
-              onPress={() => {
-                Linking.openURL('https://www.linkedin.com/in/tiaelhelou');
-              }}>
-              - Tia El Helou
-            </TextWrapper>
-            <TextWrapper
-              className="text-black text-base mt-2 ml-5 underline"
-              onPress={() => {
-                Linking.openURL('https://github.com/TaliaElHelou');
-              }}>
-              - Talia El Helou
-            </TextWrapper>
-            <TextWrapper
-              className="text-black text-base mt-2 ml-5 underline"
-              onPress={() => {
-                Linking.openURL('https://github.com/Memz24');
-              }}>
-              - Maha Ziad
-            </TextWrapper>
-            <TextWrapper
-              className="text-black text-base mt-2 ml-5 underline"
-              onPress={() => {
-                Linking.openURL('https://github.com/RanimeeKhoury');
-              }}>
-              - Ranime Khoury
-            </TextWrapper>
           </View>
         </View>
-        <View>
-          <TextWrapper className="text-black font-bold text-xl mt-8">
-            Special Thanks to:
+        <View className="flex flex-col">
+          <TextWrapper className="text-black text-base mt-12">User Requirements</TextWrapper>
+          <TextWrapper
+            className="text-black text-sm mt-2 ml-5 underline"
+            onPress={() => {
+              Linking.openURL('https://www.linkedin.com/in/tiaelhelou');
+            }}>
+            - Tia El Helou
           </TextWrapper>
           <TextWrapper
-            className="text-black text-base mt-2 ml-5 underline"
+            className="text-black text-sm mt-2 ml-5 underline"
             onPress={() => {
-              Linking.openURL('https://github.com/Ghantoos7');
+              Linking.openURL('https://github.com/TaliaElHelou');
             }}>
-            - Georgio Ghnatios
+            - Talia El Helou
           </TextWrapper>
           <TextWrapper
-            className="text-black text-base mt-2 ml-5 underline"
+            className="text-black text-sm mt-2 ml-5 underline"
             onPress={() => {
-              Linking.openURL('https://github.com/selimellieh72');
+              Linking.openURL('https://github.com/Memz24');
             }}>
-            - Salim Elellieh
+            - Maha Ziad
           </TextWrapper>
           <TextWrapper
-            className="text-black text-base mt-2 ml-5 underline"
+            className="text-black text-sm mt-2 ml-5 underline"
             onPress={() => {
-              Linking.openURL('https://www.instagram.com/laucsclub/');
+              Linking.openURL('https://github.com/RanimeeKhoury');
             }}>
-            - Computer Science Club
+            - Ranime Khoury
           </TextWrapper>
         </View>
       </View>
