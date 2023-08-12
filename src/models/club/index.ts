@@ -5,7 +5,7 @@ export interface Club {
   createdAt: string;
   updatedAt: string;
   status: ClubStatus;
-  Events?: Event[];
+  events?: Event[];
 }
 
 export interface ClubRequest {
