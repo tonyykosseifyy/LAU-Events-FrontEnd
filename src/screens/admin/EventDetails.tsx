@@ -38,6 +38,13 @@ const EventDetails = ({ route, navigation }: any) => {
     }
   }, []);
 
+  const getUsernameFromLAUEmail = (email: string) => {
+    const left = email.split('@')[0];
+    const username = left.split('.').join(' ');
+    // remove number from username
+    const usernameWithoutNumber = username.replace(/[0-9]/g, '');
+    return usernameWithoutNumber;
+  };
   return (
     <SafeAreaView className="w-full h-full bg-brand-lighter relative py-10 px-8">
       <View className="absolute top-0 left-0">
@@ -92,7 +99,9 @@ const EventDetails = ({ route, navigation }: any) => {
           <FlatList
             data={event.Users}
             renderItem={({ item }) => (
-              <TextWrapper className="text-gray text-sm mt-2">{item.email}</TextWrapper>
+              <TextWrapper className="text-gray text-sm mt-2" key={item.id}>
+                - {getUsernameFromLAUEmail(item.email)}
+              </TextWrapper>
             )}
             keyExtractor={(item) => item.id}
           />

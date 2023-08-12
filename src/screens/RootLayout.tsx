@@ -21,6 +21,7 @@ import Signup from './Signup';
 import { EventDetails as UserEventDetails } from './user/EventDetails';
 import UserHome from './user/UserLayout';
 import DeclinedEvent from './user/DeclinedEvent';
+import Logout from './user/Logout';
 
 SplashScreen.preventAutoHideAsync();
 
@@ -36,7 +37,6 @@ export default function RootLayout() {
         AsyncStorage.setItem('appLaunched', 'false');
       } else {
         setFirstLaunch(false);
-        AsyncStorage.removeItem('appLaunched');
       }
     }
     setData();
@@ -96,11 +96,13 @@ export default function RootLayout() {
               <RootStack.Screen name="ClubDetails" component={ClubDetails} />
               <RootStack.Screen name="AddEvent" component={AddEvent} />
               <RootStack.Screen name="EventDetails" component={EventDetails} />
+              <RootStack.Screen name="Logout" component={Logout} />
             </>
           ) : (
             <>
               <RootStack.Screen name="UserHome" component={UserHome} />
               <RootStack.Screen name="Home" component={Home} />
+              <RootStack.Screen name="Logout" component={Logout} />
               <RootStack.Screen name="DeclinedEvents" component={DeclinedEvent} />
               <RootStack.Screen name="EventDetails" component={UserEventDetails} />
             </>

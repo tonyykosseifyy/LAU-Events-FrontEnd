@@ -1,4 +1,4 @@
-import { View, Text, Pressable, FlatList, Modal, Alert } from 'react-native';
+import { View, Text, Pressable, FlatList, Modal, Alert, ActivityIndicator } from 'react-native';
 import React, { useEffect, useState } from 'react';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import TextWrapper from '../../components/TextWrapper';
@@ -18,7 +18,7 @@ const AdminClubs = ({ navigation }: any) => {
   const [clubName, setClubName] = useState('');
   const [clubNameError, setClubNameError] = useState<string | null>(null);
 
-  const { data: clubs } = useQuery(
+  const { data: clubs, isLoading } = useQuery(
     ['AdminClubs', session],
     async () => {
       try {
@@ -134,7 +134,11 @@ const AdminClubs = ({ navigation }: any) => {
         </Pressable>
       </View>
       <View className="h-fit w-full mt-14">
-        {clubs && clubs.length > 0 ? (
+        {!clubs || isLoading ? (
+          <View className="mt-16 flex items-center justify-center">
+            <ActivityIndicator size="large" color="green" />
+          </View>
+        ) : clubs.length > 0 ? (
           <FlatList
             data={clubs}
             className="w-full"

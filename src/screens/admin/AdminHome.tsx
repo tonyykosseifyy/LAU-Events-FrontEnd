@@ -37,9 +37,9 @@ const AdminHome = () => {
         options={{
           tabBarIcon: ({ focused }) => {
             return focused ? (
-              <View className="bg-brand p-2 rounded-md flex flex-row items-center">
+              <View className="bg-brand p-2 rounded-md flex flex-row items-center ml-3">
                 <DashboardSVG width={20} height={20} color="#EAF2EF" />
-                <TextWrapper className="text-white text-xs pl-2">Dashboard</TextWrapper>
+                <TextWrapper className="text-white text-xs pl-1">Dashboard</TextWrapper>
               </View>
             ) : (
               <View>

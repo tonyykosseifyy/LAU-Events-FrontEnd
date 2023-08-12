@@ -1,27 +1,20 @@
 import { View, FlatList, Pressable, Modal } from 'react-native';
-import React, { useEffect, useMemo } from 'react';
+import React, { useMemo } from 'react';
 import TextWrapper from '../../components/TextWrapper';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { useAuth } from '../../context/AuthContext';
 import DashboardSVG from '../../../assets/Icons/dashboard.svg';
+import LogoutSVG from '../../../assets/Icons/logout.svg';
 import clsx from 'clsx';
 import ExcelSvg from '../../../assets/Icons/excel.svg';
 import RawSvg from '../../../assets/Icons/raw.svg';
 import { EventApi } from '../../utils/api/crud/events';
 import useSession from '../../hooks/useSession';
-import { ClubApi } from '../../utils/api/crud/clubs';
-import { EventStatus } from '../../models/event';
 import DashboardApi from '../../utils/api/dashboard';
 import { DashboardData } from '../../models/dashboard';
-import { useQuery, useQueryClient } from '@tanstack/react-query';
+import { useQuery } from '@tanstack/react-query';
 
-interface DashboardDataSource {
-  title: string;
-  value: number;
-  isPercentage: boolean | undefined;
-}
-
-const Dashboard = () => {
+const Dashboard = ({ navigation }: any) => {
   const authContext = useAuth();
   const session = useSession(authContext.authState);
 
@@ -77,7 +70,14 @@ const Dashboard = () => {
     <SafeAreaView className="bg-brand-lighter w-full h-full py-10 px-6">
       <View className="flex flex-row w-full justify-between items-center">
         <TextWrapper className="text-2xl text-black">Dashboard</TextWrapper>
-        <DashboardSVG width={20} height={20} color="#006E58" />
+        <LogoutSVG
+          width={20}
+          height={20}
+          color="#006E58"
+          onPress={() => {
+            navigation.navigate('Logout');
+          }}
+        />
       </View>
       <Modal
         animationType="slide"

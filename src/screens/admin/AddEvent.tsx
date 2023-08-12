@@ -107,7 +107,6 @@ const AddEvent = ({ navigation }: any) => {
       if (res) {
         queryClient.refetchQueries(['events']);
         queryClient.invalidateQueries(['events']);
-        queryClient.fetchQuery(['events']);
         navigation.goBack();
       }
     } catch (e) {

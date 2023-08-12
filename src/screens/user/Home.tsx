@@ -1,17 +1,18 @@
-import { View, Text, TextInput, Pressable } from 'react-native';
+import { View, Text, TextInput, Pressable, ActivityIndicator } from 'react-native';
 import React, { useEffect, useMemo, useState } from 'react';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import WaveTopRightSVG from '../../../assets/wave_top_right.svg';
 import TextWrapper from '../../components/TextWrapper';
 import dayjs from 'dayjs';
 import SearchSVG from '../../../assets/Icons/search.svg';
-import { useQuery } from '@tanstack/react-query';
+import { useQuery, useQueryClient } from '@tanstack/react-query';
 import { useAuth } from '../../context/AuthContext';
 import useSession from '../../hooks/useSession';
 import { EventApi } from '../../utils/api/crud/events';
 import { FlatList } from 'react-native-gesture-handler';
 import EventCard from '../../components/EventCard';
 import { Event } from '../../models/event';
+
 enum Fitler {
   ALL = 'all',
   TODAY = 'today',
@@ -23,29 +24,8 @@ const Home = ({ navigation }: any) => {
   const session = useSession(authContext.authState);
 
   const [search, setSearch] = useState('');
+  const [filteredEvents, setFilteredEvents] = useState<Event[]>([]);
   const [filterUsed, setFilterUsed] = useState<Fitler>(Fitler.ALL);
-
-  const { data: events } = useQuery(
-    ['events', session],
-    async () => {
-      const eventsApi = new EventApi(session);
-      const res = await eventsApi.find();
-      // filter the old events out
-      if (!res) return [];
-      return res.filter((event) => {
-        return dayjs(event.startTime).isAfter(dayjs());
-      });
-    },
-    {
-      enabled: !!session,
-      cacheTime: 1000 * 10, // 10 seconds
-      refetchInterval: 1000 * 10,
-      initialData: [],
-    }
-  );
-
-  const [filteredEvents, setFilteredEvents] = useState<Event[]>(events);
-
   const filters = useMemo(() => {
     return [
       {
@@ -63,12 +43,29 @@ const Home = ({ navigation }: any) => {
     ];
   }, []);
 
-  useEffect(() => {
-    updateFilters();
-  }, []);
+  const { data: events, isLoading } = useQuery(
+    ['events', session],
+    async () => {
+      const eventsApi = new EventApi(session);
+      const res = await eventsApi.find();
+      // filter the old events out
+
+      return res.filter((event) => {
+        return dayjs(event.startTime).isAfter(dayjs());
+      });
+    },
+    {
+      enabled: !!session,
+      cacheTime: 1000 * 10, // 10 seconds
+      refetchInterval: 1000 * 10,
+      onSuccess: (data) => {
+        setFilteredEvents(data);
+      },
+    }
+  );
 
   const updateFilters = (filterValue?: Fitler) => {
-    if (!session) {
+    if (!session || !events) {
       setFilteredEvents([]);
       return;
     }
@@ -151,9 +148,13 @@ const Home = ({ navigation }: any) => {
           </Pressable>
         ))}
       </View>
-      {filteredEvents && filteredEvents.length > 0 ? (
+      {isLoading || !events ? (
+        <View className="mt-16 flex items-center justify-center">
+          <ActivityIndicator size="large" color="green" />
+        </View>
+      ) : filteredEvents && filteredEvents.length > 0 ? (
         <FlatList
-          data={filteredEvents}
+          data={filteredEvents.length > 0 ? filteredEvents : events}
           className="w-full mt-6"
           ItemSeparatorComponent={() => {
             return <View className="h-10" />; // space between items

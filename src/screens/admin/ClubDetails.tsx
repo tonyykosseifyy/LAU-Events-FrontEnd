@@ -14,7 +14,7 @@ import { useAuth } from '../../context/AuthContext';
 import useSession from '../../hooks/useSession';
 import { ClubApi } from '../../utils/api/crud/clubs';
 import clsx from 'clsx';
-import { useQueryClient } from '@tanstack/react-query';
+import { useQuery, useQueryClient } from '@tanstack/react-query';
 
 const event_placeholder = require('../../../assets/event_image_placeholder.png');
 
@@ -23,50 +23,37 @@ const ClubDetails = ({ route, navigation }: any) => {
   const authContext = useAuth();
   const session = useSession(authContext.authState);
   const queryClient = useQueryClient();
-
-  const [club, setClub] = useState<Club | null>(null);
-
   const [isActive, setIsActive] = useState(true);
+
+  const { data: club } = useQuery(
+    ['AdminClub', session],
+    async () => {
+      const res = await new ClubApi(session).findOne(clubId);
+      setIsActive(res?.status === ClubStatus.ACTIVE);
+      return res;
+    },
+    {
+      enabled: !!session,
+      cacheTime: 1000 * 10,
+      refetchInterval: 1000 * 10,
+    }
+  );
+
   const toggleSwitch = async () => {
     try {
       setIsActive((previousState) => !previousState);
-      const res = await new ClubApi(session).update(clubId, {
+      await new ClubApi(session).update(clubId, {
         status: !isActive ? ClubStatus.ACTIVE : ClubStatus.INACTIVE,
       });
 
-      if (!club) return;
-
-      const newClub: Club = {
-        ...club,
-        status: res.status,
-      };
-
-      setClub(newClub);
+      queryClient.invalidateQueries(['AdminClub', session]);
+      queryClient.refetchQueries(['AdminClub', session]);
       queryClient.invalidateQueries(['AdminClubs']);
       queryClient.refetchQueries(['AdminClubs']);
     } catch (e) {
       console.log(e);
     }
   };
-
-  useEffect(() => {
-    if (!session || !clubId) {
-      authContext.signOut();
-      return;
-    }
-
-    try {
-      const getClub = async () => {
-        const res = await new ClubApi(session).findOne(clubId);
-        setClub(res);
-        setIsActive(res?.status === ClubStatus.ACTIVE);
-      };
-      getClub();
-    } catch (e) {
-      console.log(e);
-      authContext.signOut();
-    }
-  }, []);
 
   return (
     <SafeAreaView className="w-full h-full bg-brand-lighter relative py-10 px-6">
@@ -118,11 +105,11 @@ const ClubDetails = ({ route, navigation }: any) => {
           <TextWrapper className="text-black text-2xl">Events</TextWrapper>
           <EventsSVG width={25} height={25} color="#005C4A" />
         </View>
-        {club?.events && club.events.length > 0 ? (
+        {club?.Events && club.Events.length > 0 ? (
           <View className="mt-8 w-full pb-10">
             <FlatList
               numColumns={1}
-              data={club?.events}
+              data={club?.Events}
               ItemSeparatorComponent={() => {
                 return <View className="h-6" />;
               }}
