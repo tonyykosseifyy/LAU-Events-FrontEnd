@@ -1,4 +1,4 @@
-import { View, Text, Pressable, FlatList } from 'react-native';
+import { View, Text, Pressable, FlatList, ActivityIndicator } from 'react-native';
 import React, { useEffect, useState } from 'react';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import TextWrapper from '../../components/TextWrapper';
@@ -13,7 +13,7 @@ const AdminEvents = ({ navigation }: any) => {
   const authContext = useAuth();
   const session = useSession(authContext.authState);
 
-  const { data: events } = useQuery(
+  const { data: events, isLoading } = useQuery(
     ['events', session],
     async () => {
       const eventsApi = new EventApi(session);
@@ -30,7 +30,6 @@ const AdminEvents = ({ navigation }: any) => {
       enabled: !!session,
       cacheTime: 1000 * 10,
       refetchInterval: 1000 * 10,
-      initialData: [],
     }
   );
 
@@ -47,7 +46,11 @@ const AdminEvents = ({ navigation }: any) => {
         </Pressable>
       </View>
       <View className="h-fit w-full mt-14">
-        {events && events.length > 0 ? (
+        {!events || isLoading ? (
+          <View className="mt-16 flex items-center justify-center">
+            <ActivityIndicator size="large" color="green" />
+          </View>
+        ) : events.length > 0 ? (
           <FlatList
             data={events}
             className="w-full"
