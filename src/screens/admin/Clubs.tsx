@@ -63,46 +63,46 @@ const AdminClubs = ({ navigation }: any) => {
       return;
     }
 
-    if (image === null) {
-      setClubImageError('Please select an image');
-      return;
-    }
+    // if (image === null) {
+    //   setClubImageError('Please select an image');
+    //   return;
+    // }
 
-    if (image.fileSize && image.fileSize > 5 * 1024 * 1024) {
-      setClubImageError('Please select an image less than 5mb');
-      return;
-    }
+    // if (image.fileSize && image.fileSize > 5 * 1024 * 1024) {
+    //   setClubImageError('Please select an image less than 5mb');
+    //   return;
+    // }
 
-    let imageUrl: string | null = null;
-    try {
-      const response = await FileSystem.readAsStringAsync(image.uri, {
-        encoding: FileSystem.EncodingType.Base64,
-      });
+    // let imageUrl: string | null = null;
+    // try {
+    //   const response = await FileSystem.readAsStringAsync(image.uri, {
+    //     encoding: FileSystem.EncodingType.Base64,
+    //   });
 
-      const blob = new Blob([response], { type: 'image/jpeg' });
-      const formData = new FormData();
-      formData.append('file', blob);
-      const imageApi = new ImageApi(session);
-      const res = await imageApi.test();
-      // imageUrl = res.imagePath;
-    } catch (e) {
-      if (isAxiosError(e)) {
-        setClubImageError(getAxiosError(e));
-      } else {
-        setClubImageError('Could not upload image, please try again');
-      }
-      return;
-    }
+    //   const blob = new Blob([response], { type: 'image/jpeg' });
+    //   const formData = new FormData();
+    //   formData.append('file', blob);
+    //   const imageApi = new ImageApi(session);
+    //   const res = await imageApi.test();
+    //   // imageUrl = res.imagePath;
+    // } catch (e) {
+    //   if (isAxiosError(e)) {
+    //     setClubImageError(getAxiosError(e));
+    //   } else {
+    //     setClubImageError('Could not upload image, please try again');
+    //   }
+    //   return;
+    // }
 
-    if (!imageUrl) {
-      setClubImageError('Could not upload image, please try again');
-      return;
-    }
+    // if (!imageUrl) {
+    //   setClubImageError('Could not upload image, please try again');
+    //   return;
+    // }
 
     const newClub: ClubRequest = {
       clubName: clubName.trim(),
       status: ClubStatus.ACTIVE,
-      imagePath: imageUrl ?? event_placeholder,
+      // imagePath: imageUrl ?? event_placeholder,
     };
 
     try {
@@ -185,7 +185,7 @@ const AdminClubs = ({ navigation }: any) => {
                   <TextWrapper className="text-sm text-red-500">{clubNameError}</TextWrapper>
                 )}
               </View>
-              <View className="flex flex-col">
+              {/* <View className="flex flex-col">
                 <TextWrapper className="text-base text-black">Club Image</TextWrapper>
                 <Pressable
                   className="w-full bg-white-700 flex items-center justify-center flex-col p-4 border-[1px] border-brand-light/25 rounded-lg mt-2"
@@ -217,7 +217,7 @@ const AdminClubs = ({ navigation }: any) => {
                 {clubImageError && (
                   <TextWrapper className="text-sm text-red-500">{clubImageError}</TextWrapper>
                 )}
-              </View>
+              </View> */}
             </View>
             <View className="flex flex-row w-full justify-end items-center mt-10">
               <Pressable

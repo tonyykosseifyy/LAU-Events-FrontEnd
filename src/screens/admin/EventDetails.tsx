@@ -77,15 +77,15 @@ const EventDetails = ({ route, navigation }: any) => {
         </TextWrapper>
         <View className="flex flex-row flex-wrap items-center mt-4">
           <TextWrapper className="text-black font-bold text-base mt-2 mr-1">Clubs</TextWrapper>
-          {event?.Clubs &&
-            event.Clubs.map((club, index) => <Tag text={club.clubName} key={index} />)}
+          {event?.clubs &&
+            event.clubs.map((club, index) => <Tag text={club.clubName} key={index} />)}
         </View>
         <TextWrapper className="text-black font-bold text-base mt-2">Description</TextWrapper>
         <TextWrapper className="text-gray text-xs mt-2">{event?.eventDescription}</TextWrapper>
 
         <View className="flex flex-row w-full justify-between items-center mt-5">
           <TextWrapper className="text-black font-bold text-base">Acceptance Count</TextWrapper>
-          <TextWrapper>{event?.Users?.length ?? 0}</TextWrapper>
+          <TextWrapper>{event?.users?.length ?? 0}</TextWrapper>
         </View>
         <View className="flex flex-row w-full justify-between items-center mt-2">
           <TextWrapper className="text-black font-bold text-base">Decline Count</TextWrapper>
@@ -95,9 +95,9 @@ const EventDetails = ({ route, navigation }: any) => {
 
       <View className="mt-8 w-full flex flex-col">
         <TextWrapper className="text-black font-bold text-base">Accepted Students</TextWrapper>
-        {event?.Users && event.Users.length > 0 ? (
+        {event?.users && event.users.length > 0 ? (
           <FlatList
-            data={event.Users}
+            data={event.users}
             renderItem={({ item }) => (
               <TextWrapper className="text-gray text-sm mt-2" key={item.id}>
                 - {getUsernameFromLAUEmail(item.email)}

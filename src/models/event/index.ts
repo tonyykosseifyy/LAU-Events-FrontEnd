@@ -9,8 +9,8 @@ export interface Event {
   startTime: Date;
   endTime: Date;
   clubId?: string;
-  Clubs?: Club[];
-  Users?: User[];
+  clubs?: Club[];
+  users?: User[];
   status: EventStatus;
   createdAt: string;
   updatedAt: string;
