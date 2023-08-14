@@ -6,11 +6,13 @@ export interface Club {
   updatedAt: string;
   status: ClubStatus;
   events?: Event[];
+  imagePath?: string;
 }
 
 export interface ClubRequest {
   clubName: string;
   status: ClubStatus;
+  imagePath?: string;
 }
 
 export enum ClubStatus {

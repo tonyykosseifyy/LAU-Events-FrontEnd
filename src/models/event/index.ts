@@ -17,6 +17,7 @@ export interface Event {
   declinedUsers?: number;
   userStatus?: UserEventStatus;
   userEventId?: string;
+  imagePath?: string;
 }
 
 export interface EventRequest {
@@ -26,6 +27,7 @@ export interface EventRequest {
   endTime: Date;
   clubIds: string[];
   status: EventStatus;
+  imagePath?: string;
 }
 
 export enum EventStatus {

@@ -13,6 +13,8 @@ import useSession from '../../hooks/useSession';
 import DashboardApi from '../../utils/api/dashboard';
 import { DashboardData } from '../../models/dashboard';
 import { useQuery } from '@tanstack/react-query';
+import { isAxiosError } from 'axios';
+import { getAxiosError } from '../../utils/errors';
 
 const Dashboard = ({ navigation }: any) => {
   const authContext = useAuth();
@@ -60,7 +62,17 @@ const Dashboard = ({ navigation }: any) => {
     ];
   }, [dashboardData]);
 
-  const downloadDataCSV = () => {};
+  const downloadDataCSV = async () => {
+    const dashboardApi = new DashboardApi(session);
+    try {
+      const res = await dashboardApi.getAllData();
+      console.log(res);
+    } catch (e) {
+      if (isAxiosError(e)) {
+        console.log(getAxiosError(e));
+      }
+    }
+  };
 
   const downloadDataRaw = () => {};
 

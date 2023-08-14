@@ -1,7 +1,5 @@
-import { AxiosRequestConfig } from 'axios';
-import { ApiFilter, ApiParam, CoreApi } from '../client';
-import { Uid } from '../../../models/user';
-import { DashboardData } from '../../../models/dashboard';
+import { DashboardData, DataStat } from '../../../models/dashboard';
+import { ApiParam, CoreApi } from '../client';
 
 export default class DashboardApi extends CoreApi {
   path = '/dashboard';
@@ -11,5 +9,9 @@ export default class DashboardApi extends CoreApi {
 
   async getDashboardData(): Promise<DashboardData> {
     return (await this.client.get<DashboardData>(`${this.path}`)).data;
+  }
+
+  async getAllData(): Promise<DataStat[]> {
+    return (await this.client.get<DataStat[]>(`${this.path}/all`)).data;
   }
 }
