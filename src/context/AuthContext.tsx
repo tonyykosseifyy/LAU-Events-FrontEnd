@@ -298,6 +298,7 @@ export function AuthProvider({ children }: PropsWithChildren) {
             authenticated: false,
             isVerified: null,
           });
+          await new AuthApi().signOut();
         },
         verify: verify,
         authState,

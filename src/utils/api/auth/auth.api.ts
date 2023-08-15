@@ -33,6 +33,10 @@ export class AuthApi extends CoreApi {
   async verify(code: string, userId: string): Promise<LoginResponse> {
     return (await this.client.post<LoginResponse>(`${this.path}/verify`, { code, userId })).data;
   }
+
+  async signOut() {
+    return (await this.client.post(`${this.path}/signout`)).data;
+  }
 }
 
 export interface LoginResponse {
