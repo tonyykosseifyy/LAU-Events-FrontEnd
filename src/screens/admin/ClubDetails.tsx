@@ -1,5 +1,5 @@
 import { View, Text, ImageBackground, Pressable, Switch } from 'react-native';
-import React, { useEffect, useState } from 'react';
+import React, { useEffect, useMemo, useState } from 'react';
 import { Club, ClubStatus } from '../../models/club';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import TextWrapper from '../../components/TextWrapper';
@@ -15,6 +15,7 @@ import useSession from '../../hooks/useSession';
 import { ClubApi } from '../../utils/api/crud/clubs';
 import clsx from 'clsx';
 import { useQuery, useQueryClient } from '@tanstack/react-query';
+import { API_URL } from '@env';
 
 const event_placeholder = require('../../../assets/event_image_placeholder.png');
 
@@ -73,7 +74,7 @@ const ClubDetails = ({ route, navigation }: any) => {
       <View className="w-full flex items-center justify-start p-2 mt-5 flex-row">
         <View className="w-24 h-24">
           <ImageBackground
-            source={event_placeholder}
+            source={club?.imagePath ? { uri: API_URL + '/' + club.imagePath } : event_placeholder}
             resizeMode="cover"
             borderRadius={100}
             className="w-full h-full"></ImageBackground>

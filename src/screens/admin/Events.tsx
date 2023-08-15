@@ -53,7 +53,7 @@ const AdminEvents = ({ navigation }: any) => {
         ) : events.length > 0 ? (
           <FlatList
             data={events}
-            className="w-full"
+            className="w-full mb-2"
             ItemSeparatorComponent={() => {
               return <View className="h-10" />; // space between items
             }}

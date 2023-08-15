@@ -1,18 +1,8 @@
-import {
-  View,
-  Text,
-  Pressable,
-  FlatList,
-  Modal,
-  Alert,
-  ActivityIndicator,
-  Image,
-  ImageBackground,
-} from 'react-native';
-import React, { useEffect, useState } from 'react';
+import { View, Pressable, FlatList, Modal, ActivityIndicator, ImageBackground } from 'react-native';
+import React, { useState } from 'react';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import TextWrapper from '../../components/TextWrapper';
-import { Club, ClubRequest, ClubStatus } from '../../models/club';
+import { ClubRequest, ClubStatus } from '../../models/club';
 import ClubCard from '../../components/ClubCard';
 import { TextInput } from 'react-native-gesture-handler';
 import { ClubApi } from '../../utils/api/crud/clubs';
@@ -20,10 +10,10 @@ import { useAuth } from '../../context/AuthContext';
 import useSession from '../../hooks/useSession';
 import { useQuery, useQueryClient } from '@tanstack/react-query';
 import * as ImagePicker from 'expo-image-picker';
-import ImageApi from '../../utils/api/image';
 import { isAxiosError } from 'axios';
 import { getAxiosError } from '../../utils/errors';
 import * as FileSystem from 'expo-file-system';
+import { API_URL } from '@env';
 
 const event_placeholder = require('../../../assets/event_image_placeholder.png');
 
@@ -37,13 +27,13 @@ const AdminClubs = ({ navigation }: any) => {
   const [clubImageError, setClubImageError] = useState<string | null>(null);
 
   const [image, setImage] = useState<ImagePicker.ImagePickerAsset | null>(null);
-
   const { data: clubs, isLoading } = useQuery(
-    ['AdminClubs', session],
+    ['AdminClubs'],
     async () => {
       try {
         const clubApi = new ClubApi(session);
         const res = await clubApi.find();
+        if (!res) return [];
         return res;
       } catch (e) {
         console.log(e);
@@ -63,51 +53,58 @@ const AdminClubs = ({ navigation }: any) => {
       return;
     }
 
-    // if (image === null) {
-    //   setClubImageError('Please select an image');
-    //   return;
-    // }
+    if (image === null) {
+      setClubImageError('Please select an image');
+      return;
+    }
 
-    // if (image.fileSize && image.fileSize > 5 * 1024 * 1024) {
-    //   setClubImageError('Please select an image less than 5mb');
-    //   return;
-    // }
+    if (image.fileSize && image.fileSize > 5 * 1024 * 1024) {
+      setClubImageError('Please select an image less than 5mb');
+      return;
+    }
 
-    // let imageUrl: string | null = null;
-    // try {
-    //   const response = await FileSystem.readAsStringAsync(image.uri, {
-    //     encoding: FileSystem.EncodingType.Base64,
-    //   });
+    let imageUrl: string | null = null;
 
-    //   const blob = new Blob([response], { type: 'image/jpeg' });
-    //   const formData = new FormData();
-    //   formData.append('file', blob);
-    //   const imageApi = new ImageApi(session);
-    //   const res = await imageApi.test();
-    //   // imageUrl = res.imagePath;
-    // } catch (e) {
-    //   if (isAxiosError(e)) {
-    //     setClubImageError(getAxiosError(e));
-    //   } else {
-    //     setClubImageError('Could not upload image, please try again');
-    //   }
-    //   return;
-    // }
+    try {
+      const res = await FileSystem.uploadAsync(API_URL + '/upload', image.uri, {
+        httpMethod: 'POST',
+        uploadType: FileSystem.FileSystemUploadType.MULTIPART,
+        fieldName: 'file',
+        headers: {
+          'Content-Type': 'multipart/form-data',
+          Authorization: `Bearer ${session?.accessToken}`,
+        },
+      });
+      if (res.status !== 200) {
+        setClubImageError('Could not upload image, please try again');
+        return;
+      }
+      const body: any = JSON.parse(res.body);
+      imageUrl = body.imageUrl;
+    } catch (e) {
+      if (isAxiosError(e)) {
+        setClubImageError(getAxiosError(e));
+      } else {
+        console.log(e);
+        setClubImageError('Could not upload image, please try again');
+      }
+      return;
+    }
 
-    // if (!imageUrl) {
-    //   setClubImageError('Could not upload image, please try again');
-    //   return;
-    // }
+    if (!imageUrl) {
+      setClubImageError('Could not upload image, please try again');
+      return;
+    }
 
     const newClub: ClubRequest = {
       clubName: clubName.trim(),
       status: ClubStatus.ACTIVE,
-      // imagePath: imageUrl ?? event_placeholder,
+      imagePath: imageUrl,
     };
 
     try {
       const clubApi = new ClubApi(session);
-      const res = await clubApi.create(newClub);
+      await clubApi.create(newClub);
       queryClient.invalidateQueries(['AdminClubs']);
       queryClient.refetchQueries(['AdminClubs']);
       setModalVisible(false);
@@ -185,7 +182,7 @@ const AdminClubs = ({ navigation }: any) => {
                   <TextWrapper className="text-sm text-red-500">{clubNameError}</TextWrapper>
                 )}
               </View>
-              {/* <View className="flex flex-col">
+              <View className="flex flex-col">
                 <TextWrapper className="text-base text-black">Club Image</TextWrapper>
                 <Pressable
                   className="w-full bg-white-700 flex items-center justify-center flex-col p-4 border-[1px] border-brand-light/25 rounded-lg mt-2"
@@ -217,7 +214,7 @@ const AdminClubs = ({ navigation }: any) => {
                 {clubImageError && (
                   <TextWrapper className="text-sm text-red-500">{clubImageError}</TextWrapper>
                 )}
-              </View> */}
+              </View>
             </View>
             <View className="flex flex-row w-full justify-end items-center mt-10">
               <Pressable

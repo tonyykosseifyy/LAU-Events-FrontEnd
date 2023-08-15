@@ -10,6 +10,7 @@ import React, {
 } from 'react';
 import { AuthApi, LoginResponse, SignUpResposne } from '../utils/api/auth/auth.api';
 import { User, UserRole } from '../models/user';
+import useSession from '../hooks/useSession';
 
 const SECURE_STORE_USER_KEY = 'user';
 
@@ -292,6 +293,7 @@ export function AuthProvider({ children }: PropsWithChildren) {
         signIn: credentialsSignIn,
         signUp,
         signOut: async () => {
+          await new AuthApi(useSession(authState)).signOut();
           await SecureStore.deleteItemAsync(SECURE_STORE_USER_KEY);
           setAuthState({
             user: null,
