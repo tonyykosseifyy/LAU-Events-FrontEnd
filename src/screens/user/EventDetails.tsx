@@ -247,8 +247,8 @@ export const EventDetails = ({ route, navigation }: any) => {
         </TextWrapper>
         <View className="flex flex-row flex-wrap items-center mt-4">
           <TextWrapper className="text-black font-bold text-base mt-2 mr-1">Clubs</TextWrapper>
-          {event?.Clubs &&
-            event.Clubs.map((club, index) => <Tag text={club.clubName} key={index} />)}
+          {event?.clubs &&
+            event.clubs.map((club, index) => <Tag text={club.clubName} key={index} />)}
         </View>
         <TextWrapper className="text-black font-bold text-base mt-2">Description</TextWrapper>
         <TextWrapper className="text-gray text-xs mt-2">{event?.eventDescription}</TextWrapper>

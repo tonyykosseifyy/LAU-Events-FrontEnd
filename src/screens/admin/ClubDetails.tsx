@@ -105,11 +105,11 @@ const ClubDetails = ({ route, navigation }: any) => {
           <TextWrapper className="text-black text-2xl">Events</TextWrapper>
           <EventsSVG width={25} height={25} color="#005C4A" />
         </View>
-        {club?.Events && club.Events.length > 0 ? (
+        {club?.events && club.events.length > 0 ? (
           <View className="mt-8 w-full pb-10">
             <FlatList
               numColumns={1}
-              data={club?.Events}
+              data={club?.events}
               ItemSeparatorComponent={() => {
                 return <View className="h-6" />;
               }}

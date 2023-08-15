@@ -9,14 +9,15 @@ export interface Event {
   startTime: Date;
   endTime: Date;
   clubId?: string;
-  Clubs?: Club[];
-  Users?: User[];
+  clubs?: Club[];
+  users?: User[];
   status: EventStatus;
   createdAt: string;
   updatedAt: string;
   declinedUsers?: number;
   userStatus?: UserEventStatus;
   userEventId?: string;
+  imagePath?: string;
 }
 
 export interface EventRequest {
@@ -26,6 +27,7 @@ export interface EventRequest {
   endTime: Date;
   clubIds: string[];
   status: EventStatus;
+  imagePath?: string;
 }
 
 export enum EventStatus {

@@ -5,12 +5,14 @@ export interface Club {
   createdAt: string;
   updatedAt: string;
   status: ClubStatus;
-  Events?: Event[];
+  events?: Event[];
+  imagePath?: string;
 }
 
 export interface ClubRequest {
   clubName: string;
   status: ClubStatus;
+  imagePath?: string;
 }
 
 export enum ClubStatus {

@@ -8,6 +8,7 @@ import ArrowRightSVG from '../../assets/Icons/arrow_right.svg';
 
 const event_placeholder = require('../../assets/event_image_placeholder.png');
 const EventCard: FC<{ event: Event; navigation: any }> = ({ event, navigation }) => {
+  console.log(event);
   return (
     <View className="w-full bg-white rounded-lg h-72 py-3 px-4">
       <View className="w-full h-[81%]">
@@ -36,7 +37,7 @@ const EventCard: FC<{ event: Event; navigation: any }> = ({ event, navigation })
         <View className="flex items-center flex-row ">
           <View className="bg-success py-2 px-2 rounded-xl">
             <TextWrapper className="text-xs text-brand-dark">
-              {event.Clubs && event.Clubs.length > 0 ? event.Clubs.at(0)?.clubName : 'Unkown Club'}
+              {event.clubs && event.clubs.length > 0 ? event.clubs.at(0)?.clubName : 'Unkown Club'}
             </TextWrapper>
           </View>
         </View>
