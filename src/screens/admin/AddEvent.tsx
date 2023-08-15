@@ -1,5 +1,5 @@
 import * as yup from 'yup';
-import { View, Text, Pressable, TextInput, Platform } from 'react-native';
+import { View, Text, Pressable, TextInput, Platform, ImageBackground } from 'react-native';
 import React, { useEffect, useState } from 'react';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import ArrowRight from '../../../assets/Icons/arrow_right.svg';
@@ -21,6 +21,9 @@ import { useQueryClient } from '@tanstack/react-query';
 import SelectDropdown from 'react-native-select-dropdown';
 import { isAxiosError } from 'axios';
 import { getAxiosError } from '../../utils/errors';
+import * as ImagePicker from 'expo-image-picker';
+import * as FileSystem from 'expo-file-system';
+import { API_URL } from '@env';
 
 type EventForm = {
   eventName: string;
@@ -77,6 +80,9 @@ const AddEvent = ({ navigation }: any) => {
   const [clubsError, setClubsError] = useState<string | null>(null);
   const [dropDowanTextColor, setDropDownTextColor] = useState<string>('#AAAAAA');
 
+  const [eventImageError, setEventImageError] = useState<string | null>(null);
+  const [image, setImage] = useState<ImagePicker.ImagePickerAsset | null>(null);
+
   const [error, setError] = useState<string | null>(null);
 
   const toggleStartDatePicker = () => {
@@ -92,6 +98,48 @@ const AddEvent = ({ navigation }: any) => {
       setClubsError('Select at least one club');
       return;
     }
+    if (image === null) {
+      setEventImageError('Please select an image');
+      return;
+    }
+
+    if (image.fileSize && image.fileSize > 5 * 1024 * 1024) {
+      setEventImageError('Please select an image less than 5mb');
+      return;
+    }
+
+    let imageUrl: string | null = null;
+
+    try {
+      const res = await FileSystem.uploadAsync(API_URL + '/upload', image.uri, {
+        httpMethod: 'POST',
+        uploadType: FileSystem.FileSystemUploadType.MULTIPART,
+        fieldName: 'file',
+        headers: {
+          'Content-Type': 'multipart/form-data',
+          Authorization: `Bearer ${session?.accessToken}`,
+        },
+      });
+      if (res.status !== 200) {
+        setEventImageError('Could not upload image, please try again');
+        return;
+      }
+      const body: any = JSON.parse(res.body);
+      imageUrl = body.imageUrl;
+    } catch (e) {
+      if (isAxiosError(e)) {
+        setEventImageError(getAxiosError(e));
+      } else {
+        console.log(e);
+        setEventImageError('Could not upload image, please try again');
+      }
+      return;
+    }
+
+    if (!imageUrl) {
+      setEventImageError('Could not upload image, please try again');
+      return;
+    }
 
     try {
       const clubIds = selectedClubs.map((i) => i.id);
@@ -102,6 +150,7 @@ const AddEvent = ({ navigation }: any) => {
         eventDescription: data.eventDescription,
         eventName: data.eventName,
         status: EventStatus.Active,
+        imagePath: imageUrl,
       });
 
       if (res) {
@@ -114,6 +163,29 @@ const AddEvent = ({ navigation }: any) => {
         setError(getAxiosError(e));
       }
       console.log(e);
+    }
+  };
+
+  const clickedOnAddImage = async () => {
+    const { status } = await ImagePicker.requestMediaLibraryPermissionsAsync();
+    if (status !== 'granted') {
+      alert('Sorry, we need camera roll permissions to make this work!');
+      // re request
+      clickedOnAddImage();
+    } else {
+      const result = await ImagePicker.launchImageLibraryAsync({
+        mediaTypes: ImagePicker.MediaTypeOptions.Images,
+        quality: 1,
+        selectionLimit: 1,
+      });
+      if (!result.canceled) {
+        if (result.assets[0].type !== 'image') {
+          setEventImageError('Please select an image');
+          return;
+        }
+        setImage(result.assets[0]);
+        setEventImageError(null);
+      }
     }
   };
 
@@ -157,6 +229,39 @@ const AddEvent = ({ navigation }: any) => {
               </>
             )}
           />
+          <View className="flex flex-col">
+            <TextWrapper className="text-base text-black">Event Image</TextWrapper>
+            <Pressable
+              className="w-full bg-white-700 flex items-center justify-center flex-col p-4 border-[1px] border-gray-300 rounded-lg mt-2"
+              onPress={() => {
+                clickedOnAddImage();
+              }}>
+              {image === null ? (
+                <>
+                  <View className="w-16 h-16 border-2 border-brand-light/20 rounded-lg flex items-center justify-center">
+                    <TextWrapper className="text-2xl text-brand-light/20">+</TextWrapper>
+                  </View>
+                  <TextWrapper className="text-gray mt-2">Click to Add an Image</TextWrapper>
+                </>
+              ) : (
+                <Pressable
+                  className="w-32 h-32"
+                  onPress={() => {
+                    clickedOnAddImage();
+                  }}>
+                  <ImageBackground
+                    source={{ uri: image.uri }}
+                    resizeMode="cover"
+                    className="w-full h-full"
+                    borderRadius={5}
+                  />
+                </Pressable>
+              )}
+            </Pressable>
+            {eventImageError && (
+              <TextWrapper className="text-sm text-red-500">{eventImageError}</TextWrapper>
+            )}
+          </View>
           <Controller
             control={control}
             name="eventDescription"
@@ -308,7 +413,7 @@ const AddEvent = ({ navigation }: any) => {
             )}
           />
         </View>
-        <View className="flex flex-row w-full justify-between items-center mt-10">
+        <View className="flex flex-row w-full justify-between items-center mt-10 mb-14">
           <Pressable
             className="bg-gray/40 px-6 py-2 rounded-lg"
             onPress={() => {
