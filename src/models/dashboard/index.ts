@@ -20,3 +20,15 @@ export interface DataStat {
     rescheduledTime: string | null;
   };
 }
+
+export interface FlatDataStat {
+  dateRegistered: string;
+  studentMajor: string;
+  eventDescription: string;
+  acceptedDate: string | null;
+  acceptedTime: string | null;
+  declinedDate: string | null;
+  declinedTime: string | null;
+  rescheduledDate: string | null;
+  rescheduledTime: string | null;
+}

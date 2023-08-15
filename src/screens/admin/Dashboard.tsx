@@ -1,4 +1,4 @@
-import { View, FlatList, Pressable, Modal } from 'react-native';
+import { View, FlatList, Pressable, Modal, Platform, Linking, Share } from 'react-native';
 import React, { useMemo } from 'react';
 import TextWrapper from '../../components/TextWrapper';
 import { SafeAreaView } from 'react-native-safe-area-context';
@@ -11,10 +11,14 @@ import RawSvg from '../../../assets/Icons/raw.svg';
 import { EventApi } from '../../utils/api/crud/events';
 import useSession from '../../hooks/useSession';
 import DashboardApi from '../../utils/api/dashboard';
-import { DashboardData } from '../../models/dashboard';
+import { DashboardData, FlatDataStat } from '../../models/dashboard';
 import { useQuery } from '@tanstack/react-query';
 import { isAxiosError } from 'axios';
 import { getAxiosError } from '../../utils/errors';
+import * as FileSystem from 'expo-file-system';
+import * as XLSX from 'xlsx';
+import * as Sharing from 'expo-sharing';
+import dayjs from 'dayjs';
 
 const Dashboard = ({ navigation }: any) => {
   const authContext = useAuth();
@@ -36,7 +40,6 @@ const Dashboard = ({ navigation }: any) => {
       refetchInterval: 1000 * 10,
     }
   );
-
   const dataSource = useMemo(() => {
     return [
       {
@@ -66,7 +69,38 @@ const Dashboard = ({ navigation }: any) => {
     const dashboardApi = new DashboardApi(session);
     try {
       const res = await dashboardApi.getAllData();
-      console.log(res);
+      // go over each DataStat in res and flatten it
+      const flattenedData: FlatDataStat[] = res.map((dataStat) => {
+        return {
+          dateRegistered: dataStat.user.createdAt,
+          studentMajor: dataStat.user.major,
+          eventDescription: dataStat.event.eventDescription,
+          acceptedDate: dataStat.event.acceptedDate,
+          acceptedTime: dataStat.event.acceptedTime,
+          declinedDate: dataStat.event.declinedDate,
+          declinedTime: dataStat.event.declinedTime,
+          rescheduledDate: dataStat.event.rescheduledDate,
+          rescheduledTime: dataStat.event.rescheduledTime,
+        };
+      });
+
+      const workbook = XLSX.utils.book_new();
+
+      const worksheet = XLSX.utils.json_to_sheet(flattenedData);
+      XLSX.utils.book_append_sheet(workbook, worksheet, 'DataStats');
+
+      // Generate the Excel file data
+      const excelData = XLSX.write(workbook, { bookType: 'xlsx', type: 'base64' });
+      const fileName = `DataStats-${dayjs().format('YYYY-MM-DDTHH:mm:ss')}.xlsx`;
+      const excelFilePath = `${FileSystem.documentDirectory}${fileName}`;
+      await FileSystem.writeAsStringAsync(excelFilePath, excelData, {
+        encoding: FileSystem.EncodingType.Base64,
+      });
+
+      // Open the file using a platform-specific method (example for React Native)
+      if (Platform.OS === 'ios' || Platform.OS === 'android') {
+        await Sharing.shareAsync(excelFilePath);
+      }
     } catch (e) {
       if (isAxiosError(e)) {
         console.log(getAxiosError(e));
@@ -74,7 +108,28 @@ const Dashboard = ({ navigation }: any) => {
     }
   };
 
-  const downloadDataRaw = () => {};
+  const downloadDataRaw = async () => {
+    const dashboardApi = new DashboardApi(session);
+    try {
+      const res = await dashboardApi.getAllData();
+      const jsonData = JSON.stringify(res, null, 2);
+      const fileName = `DataStats-${dayjs().format('YYYY-MM-DDTHH:mm:ss')}.json`;
+      const jsonFilePath = `${FileSystem.documentDirectory}${fileName}`;
+      console.log(jsonData);
+      await FileSystem.writeAsStringAsync(jsonFilePath, jsonData, {
+        encoding: FileSystem.EncodingType.UTF8,
+      });
+
+      // Open the file using a platform-specific method (example for React Native)
+      if (Platform.OS === 'ios' || Platform.OS === 'android') {
+        await Sharing.shareAsync(jsonFilePath);
+      }
+    } catch (e) {
+      if (isAxiosError(e)) {
+        console.log(getAxiosError(e));
+      }
+    }
+  };
 
   const [modalVisible, setModalVisible] = React.useState(false);
 
