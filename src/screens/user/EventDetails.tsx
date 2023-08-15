@@ -17,6 +17,7 @@ import { isAxiosError } from 'axios';
 import { getAxiosError } from '../../utils/errors';
 import * as Calendar from 'expo-calendar';
 import { useQueryClient } from '@tanstack/react-query';
+import { API_URL } from '@env';
 
 const event_placeholder = require('../../../assets/event_image_placeholder.png');
 
@@ -236,7 +237,11 @@ export const EventDetails = ({ route, navigation }: any) => {
       <View className="bg-white w-full px-4 py-4 rounded-lg flex flex-col mt-5 shadow-xl shadow-black">
         <View className="w-full aspect-video">
           <ImageBackground
-            source={event_placeholder}
+            source={
+              event && event.imagePath
+                ? { uri: API_URL + '/' + event.imagePath }
+                : event_placeholder
+            }
             resizeMode="cover"
             borderRadius={10}
             className="w-full h-full"></ImageBackground>
