@@ -1,9 +1,9 @@
-import { View, Text, ImageBackground, Pressable, FlatList } from 'react-native';
+import { View, ImageBackground, Pressable, Platform } from 'react-native';
 import React, { useEffect, useState } from 'react';
 import { EventApi } from '../../utils/api/crud/events';
 import useSession from '../../hooks/useSession';
 import { useAuth } from '../../context/AuthContext';
-import { Event, EventStatus } from '../../models/event';
+import { Event } from '../../models/event';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import WaveTopLeftSVG from '../../../assets/wave_top_left.svg';
 import WaveRightSVG from '../../../assets/wave_right.svg';
@@ -47,11 +47,20 @@ export const EventDetails = ({ route, navigation }: any) => {
   }, []);
 
   const requestCalendarPermission = async () => {
-    const { status } = await Calendar.requestCalendarPermissionsAsync();
-    if (status === 'granted') {
-      return true;
+    // if user is on android, we need only calendar permission
+    // if user is on ios, we need calendar and reminders permission
+
+    if (Platform.OS === 'android') {
+      const { status } = await Calendar.requestCalendarPermissionsAsync();
+      return status === Calendar.PermissionStatus.GRANTED;
     }
-    return false;
+
+    const { status } = await Calendar.requestCalendarPermissionsAsync();
+    const { status: reminderStatus } = await Calendar.requestRemindersPermissionsAsync();
+    return (
+      status === Calendar.PermissionStatus.GRANTED &&
+      reminderStatus === Calendar.PermissionStatus.GRANTED
+    );
   };
 
   const createUserEventEntry = async (status: UserEventStatus, eventId: string) => {
@@ -62,7 +71,6 @@ export const EventDetails = ({ route, navigation }: any) => {
         status,
       });
       queryClient.invalidateQueries(['declinedEvents']);
-      queryClient.refetchQueries(['declinedEvents']);
     } catch (e) {
       if (isAxiosError(e)) {
         console.log(getAxiosError(e));
@@ -78,7 +86,6 @@ export const EventDetails = ({ route, navigation }: any) => {
       });
 
       queryClient.invalidateQueries(['declinedEvents']);
-      queryClient.refetchQueries(['declinedEvents']);
     } catch (e) {
       if (isAxiosError(e)) {
         console.log(getAxiosError(e));
@@ -99,11 +106,11 @@ export const EventDetails = ({ route, navigation }: any) => {
               if (!eventId || !event.userEventId) return;
               updateUserEventEntry(UserEventStatus.Declined, event.userEventId);
               // remove event from calendar
-
               const permission = await requestCalendarPermission();
               if (!permission) {
                 return;
               }
+
               const calendarId = await Calendar.getCalendarsAsync();
               const events = await Calendar.getEventsAsync(
                 [calendarId[0].id],

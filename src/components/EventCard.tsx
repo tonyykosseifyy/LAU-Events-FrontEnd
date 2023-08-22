@@ -8,6 +8,7 @@ import ArrowRightSVG from '../../assets/Icons/arrow_right.svg';
 import { API_URL } from '@env';
 
 const event_placeholder = require('../../assets/event_image_placeholder.png');
+
 const EventCard: FC<{ event: Event; navigation: any }> = ({ event, navigation }) => {
   return (
     <View className="w-full bg-white rounded-lg h-72 py-3 px-4">
