@@ -312,7 +312,11 @@ export function AuthProvider({ children }: PropsWithChildren) {
         signIn: credentialsSignIn,
         signUp,
         signOut: async () => {
-          await new AuthApi(useSession(authState)).signOut();
+          try {
+            await new AuthApi(useSession(authState)).signOut();
+          } catch (e) {
+            console.log(e);
+          }
           await SecureStore.deleteItemAsync(SECURE_STORE_USER_KEY);
           setAuthState({
             user: null,
