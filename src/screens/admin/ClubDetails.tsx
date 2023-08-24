@@ -15,7 +15,7 @@ import useSession from '../../hooks/useSession';
 import { ClubApi } from '../../utils/api/crud/clubs';
 import clsx from 'clsx';
 import { useQuery, useQueryClient } from '@tanstack/react-query';
-import { API_URL } from '@env';
+import { API_URL } from '../../constants';
 
 const event_placeholder = require('../../../assets/event_image_placeholder.png');
 

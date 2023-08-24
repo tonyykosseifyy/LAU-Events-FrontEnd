@@ -11,7 +11,7 @@ import WaveRightSVG from '../../../assets/wave_right.svg';
 import ArrowRight from '../../../assets/Icons/arrow_right.svg';
 import dayjs from 'dayjs';
 import Tag from '../../components/Tag';
-import { API_URL } from '@env';
+import { API_URL } from '../../constants';
 
 const event_placeholder = require('../../../assets/event_image_placeholder.png');
 

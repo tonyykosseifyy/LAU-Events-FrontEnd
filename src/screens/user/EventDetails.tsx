@@ -17,7 +17,7 @@ import { isAxiosError } from 'axios';
 import { getAxiosError } from '../../utils/errors';
 import * as Calendar from 'expo-calendar';
 import { useQueryClient } from '@tanstack/react-query';
-import { API_URL } from '@env';
+import { API_URL } from '../../constants';
 
 const event_placeholder = require('../../../assets/event_image_placeholder.png');
 

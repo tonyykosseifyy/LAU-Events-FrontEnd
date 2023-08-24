@@ -13,7 +13,7 @@ import * as ImagePicker from 'expo-image-picker';
 import { isAxiosError } from 'axios';
 import { getAxiosError } from '../../utils/errors';
 import * as FileSystem from 'expo-file-system';
-import { API_URL } from '@env';
+import { API_URL } from '../../constants';
 
 const event_placeholder = require('../../../assets/event_image_placeholder.png');
 

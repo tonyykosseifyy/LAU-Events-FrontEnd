@@ -5,7 +5,7 @@ import TextWrapper from './TextWrapper';
 import { BlurView } from 'expo-blur';
 import dayjs from 'dayjs';
 import ArrowRightSVG from '../../assets/Icons/arrow_right.svg';
-import { API_URL } from '@env';
+import { API_URL } from '../constants';
 
 const event_placeholder = require('../../assets/event_image_placeholder.png');
 
