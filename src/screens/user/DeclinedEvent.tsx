@@ -9,6 +9,7 @@ import { useQuery } from '@tanstack/react-query';
 import { EventApi } from '../../utils/api/crud/events';
 import { Event } from '../../models/event';
 import WaveTopRightSVG from '../../../assets/wave_top_right.svg';
+import { isAxiosError } from '../../utils/errors/helpers';
 
 const DeclinedEvent = ({ navigation }: any) => {
   const authContext = useAuth();
@@ -23,7 +24,11 @@ const DeclinedEvent = ({ navigation }: any) => {
         if (!res) return [];
         return res;
       } catch (e) {
-        console.log(e);
+        if (isAxiosError(e)) {
+          if (e.status === 404 || e.status === 401) {
+            authContext.signOut();
+          }
+        }
         return [];
       }
     },

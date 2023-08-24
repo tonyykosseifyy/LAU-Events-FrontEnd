@@ -23,6 +23,7 @@ const AdminEvents = ({ navigation }: any) => {
         return res;
       } catch (e) {
         console.log(e);
+        authContext.signOut();
         return [];
       }
     },

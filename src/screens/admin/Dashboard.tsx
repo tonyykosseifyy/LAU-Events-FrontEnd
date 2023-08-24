@@ -37,11 +37,26 @@ const Dashboard = ({ navigation }: any) => {
     ['dashboard', session],
     async () => {
       const dashboardApi = new DashboardApi(session);
-      const res = await dashboardApi.getDashboardData();
-      Object.keys(res).forEach((key) => {
-        if (res[key as keyof DashboardData] === null) res[key as keyof DashboardData] = 0;
-      });
-      return res;
+
+      try {
+        const res = await dashboardApi.getDashboardData();
+        Object.keys(res).forEach((key) => {
+          if (res[key as keyof DashboardData] === null) res[key as keyof DashboardData] = 0;
+        });
+        return res;
+      } catch (e) {
+        if (isAxiosError(e)) {
+          if (e.status === 404 || e.status === 401) {
+            authContext.signOut();
+          }
+        }
+        return {
+          eventCount: 0,
+          acceptanceRate: 0,
+          clubCount: 0,
+          declineRate: 0,
+        };
+      }
     },
     {
       enabled: !!session,
