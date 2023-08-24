@@ -1,4 +1,13 @@
-import { View, FlatList, Pressable, Modal, Platform, Linking, Share } from 'react-native';
+import {
+  View,
+  FlatList,
+  Pressable,
+  Modal,
+  Platform,
+  Linking,
+  Share,
+  ScrollView,
+} from 'react-native';
 import React, { useMemo } from 'react';
 import TextWrapper from '../../components/TextWrapper';
 import { SafeAreaView } from 'react-native-safe-area-context';
@@ -134,63 +143,108 @@ const Dashboard = ({ navigation }: any) => {
   const [modalVisible, setModalVisible] = React.useState(false);
 
   return (
-    <SafeAreaView className="bg-brand-lighter w-full h-full py-10 px-6">
-      <View className="flex flex-row w-full justify-between items-center">
-        <TextWrapper className="text-2xl text-black">Dashboard</TextWrapper>
-        <LogoutSVG
-          width={20}
-          height={20}
-          color="#006E58"
-          onPress={() => {
-            navigation.navigate('Logout');
-          }}
-        />
-      </View>
-      <Modal
-        animationType="slide"
-        transparent={true}
-        visible={modalVisible}
-        onRequestClose={() => {
-          setModalVisible(!modalVisible);
-        }}>
-        <View className="w-full h-full flex justify-center items-center bg-brand/20">
-          <View className="bg-brand-lighter w-5/6 h-72 rounded-lg py-4 px-6 flex flex-col justify-between">
-            <View className="flex flex-col">
-              <View className="flex flex-row justify-between items-center w-full">
-                <TextWrapper className="text-xl text-black">
-                  ⚠️ Are you sure you want to{' '}
-                  <TextWrapper className="text-error">delete all</TextWrapper> the events in the
-                  database? ⚠️
-                </TextWrapper>
-              </View>
-            </View>
-            <View className="flex flex-row w-full justify-end items-center">
-              <Pressable
-                className="bg-gray/40 px-6 py-2 rounded-lg"
-                onPress={() => {
-                  setModalVisible(false);
-                }}>
-                <TextWrapper className="text-black text-base">Cancel</TextWrapper>
-              </Pressable>
-              <View className="w-4" />
-              <Pressable
-                className="bg-error px-8 py-2 rounded-lg"
-                onPress={() => {
-                  const eventApi = new EventApi(useSession(authContext.authState));
-                  eventApi.deleteAll();
-                  refetch();
-                  setModalVisible(false);
-                }}>
-                <TextWrapper className="text-white text-base">DELETE ALL</TextWrapper>
-              </Pressable>
-            </View>
-          </View>
-        </View>
-      </Modal>
-      <View className="h-fit w-full mt-14">
+    <SafeAreaView className="bg-brand-lighter w-full h-full py-4 px-6">
+      <View className="h-fit w-full">
         <FlatList
           data={dataSource}
           className="w-full"
+          horizontal={false}
+          ListHeaderComponent={() => {
+            return (
+              <>
+                <View className="flex flex-row w-full justify-between items-center">
+                  <TextWrapper className="text-2xl text-black">Dashboard</TextWrapper>
+                  <LogoutSVG
+                    width={20}
+                    height={20}
+                    color="#006E58"
+                    onPress={() => {
+                      navigation.navigate('Logout');
+                    }}
+                  />
+                </View>
+                <Modal
+                  animationType="slide"
+                  transparent={true}
+                  visible={modalVisible}
+                  onRequestClose={() => {
+                    setModalVisible(!modalVisible);
+                  }}>
+                  <View className="w-full h-full flex justify-center items-center bg-brand/20">
+                    <View className="bg-brand-lighter w-5/6 h-72 rounded-lg py-4 px-6 flex flex-col justify-between">
+                      <View className="flex flex-col">
+                        <View className="flex flex-row justify-between items-center w-full">
+                          <TextWrapper className="text-xl text-black">
+                            ⚠️ Are you sure you want to{' '}
+                            <TextWrapper className="text-error">delete all</TextWrapper> the events
+                            in the database? ⚠️
+                          </TextWrapper>
+                        </View>
+                      </View>
+                      <View className="flex flex-row w-full justify-end items-center">
+                        <Pressable
+                          className="bg-gray/40 px-6 py-2 rounded-lg"
+                          onPress={() => {
+                            setModalVisible(false);
+                          }}>
+                          <TextWrapper className="text-black text-base">Cancel</TextWrapper>
+                        </Pressable>
+                        <View className="w-4" />
+                        <Pressable
+                          className="bg-error px-8 py-2 rounded-lg"
+                          onPress={() => {
+                            const eventApi = new EventApi(useSession(authContext.authState));
+                            eventApi.deleteAll();
+                            refetch();
+                            setModalVisible(false);
+                          }}>
+                          <TextWrapper className="text-white text-base">DELETE ALL</TextWrapper>
+                        </Pressable>
+                      </View>
+                    </View>
+                  </View>
+                </Modal>
+              </>
+            );
+          }}
+          ListFooterComponent={() => {
+            return (
+              <>
+                <View className="mt-5 flex">
+                  <TextWrapper className="text-xl">Download Data</TextWrapper>
+                  <View className="flex mt-5 flex-row">
+                    <ExcelSvg width={35} height={35}></ExcelSvg>
+                    <TextWrapper
+                      className="text-xl ml-2 underline"
+                      onPress={() => {
+                        downloadDataCSV();
+                      }}>
+                      CSV format
+                    </TextWrapper>
+                  </View>
+                  <View className="flex mt-5 flex-row">
+                    <RawSvg width={35} height={35}></RawSvg>
+                    <TextWrapper
+                      className="text-xl ml-2 underline"
+                      onPress={() => {
+                        downloadDataRaw();
+                      }}>
+                      Raw format
+                    </TextWrapper>
+                  </View>
+                </View>
+                <View className="w-full mt-2 flex justify-end flex-row">
+                  <Pressable
+                    className="bg-error/20 px-6 py-2 rounded-lg"
+                    onPress={() => {
+                      setModalVisible(true);
+                    }}>
+                    <TextWrapper className="text-black text-base">Reset All</TextWrapper>
+                  </Pressable>
+                </View>
+              </>
+            );
+          }}
           renderItem={({ item, index }) => (
             <View
               className={clsx(
@@ -211,38 +265,6 @@ const Dashboard = ({ navigation }: any) => {
           numColumns={2}
           keyExtractor={(item, index) => index + ''}
         />
-      </View>
-      <View className="mt-5 flex">
-        <TextWrapper className="text-xl">Download Data</TextWrapper>
-        <View className="flex mt-5 flex-row">
-          <ExcelSvg width={35} height={35}></ExcelSvg>
-          <TextWrapper
-            className="text-xl ml-2 underline"
-            onPress={() => {
-              downloadDataCSV();
-            }}>
-            CSV format
-          </TextWrapper>
-        </View>
-        <View className="flex mt-5 flex-row">
-          <RawSvg width={35} height={35}></RawSvg>
-          <TextWrapper
-            className="text-xl ml-2 underline"
-            onPress={() => {
-              downloadDataRaw();
-            }}>
-            Raw format
-          </TextWrapper>
-        </View>
-      </View>
-      <View className="w-full mt-2 flex justify-end flex-row">
-        <Pressable
-          className="bg-error/20 px-6 py-2 rounded-lg"
-          onPress={() => {
-            setModalVisible(true);
-          }}>
-          <TextWrapper className="text-black text-base">Reset All</TextWrapper>
-        </Pressable>
       </View>
     </SafeAreaView>
   );
