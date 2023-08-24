@@ -6,11 +6,13 @@ import React, {
   useContext,
   useEffect,
   useMemo,
+  useRef,
   useState,
 } from 'react';
 import { AuthApi, LoginResponse, SignUpResposne } from '../utils/api/auth/auth.api';
 import { User, UserRole } from '../models/user';
 import useSession from '../hooks/useSession';
+import { AppState } from 'react-native';
 
 const SECURE_STORE_USER_KEY = 'user';
 
@@ -54,6 +56,8 @@ export function AuthProvider({ children }: PropsWithChildren) {
     authenticated: null,
     isVerified: null,
   });
+
+  const appState = useRef(AppState.currentState);
 
   const credentialsSignIn = useMemo(
     () =>
@@ -266,8 +270,8 @@ export function AuthProvider({ children }: PropsWithChildren) {
 
   useEffect(() => {
     // handle jwt expiry
+    console.log('AuthContext', authState);
     if (!authState.user || !authState.user.accessToken) return;
-
     let handle: NodeJS.Timeout | null = null;
     const { exp } = jwt_decode(authState.user.accessToken) as { exp: number };
 
@@ -278,14 +282,29 @@ export function AuthProvider({ children }: PropsWithChildren) {
         () => {
           refresh(authState);
         },
+        // refresh 1 second before expiry
         exp * 1000 - +new Date() + 1
       );
     }
-
     return () => {
       if (handle) clearTimeout(handle);
     };
   }, [refresh, authState]);
+
+  useEffect(() => {
+    const subscription = AppState.addEventListener('change', (nextAppState) => {
+      if (appState.current.match(/inactive|background/) && nextAppState === 'active') {
+        if (!authState.user || !authState.user.accessToken) return;
+        refresh(authState);
+      }
+
+      appState.current = nextAppState;
+    });
+
+    return () => {
+      subscription.remove();
+    };
+  }, []);
 
   return (
     <AuthContext.Provider
