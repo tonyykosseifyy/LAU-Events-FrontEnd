@@ -17,7 +17,6 @@ import { Controller, Form, useForm } from 'react-hook-form';
 import { useAuth } from '../context/AuthContext';
 import { isAxiosError, unWrapAuthError } from '../utils/errors';
 import { AxiosError } from 'axios';
-import { API_URL } from '@env';
 import SelectDropdown from 'react-native-select-dropdown';
 import { LAU_MAJORS } from '../constants';
 import { UserRole } from '../models/user';

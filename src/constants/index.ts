@@ -33,3 +33,5 @@ export const LAU_MAJORS = [
   'Translation',
   'Television and Film',
 ];
+
+export const API_URL = 'http://192.168.1.103:3000';

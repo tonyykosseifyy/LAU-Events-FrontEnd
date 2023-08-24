@@ -23,7 +23,7 @@ import { isAxiosError } from 'axios';
 import { getAxiosError } from '../../utils/errors';
 import * as ImagePicker from 'expo-image-picker';
 import * as FileSystem from 'expo-file-system';
-import { API_URL } from '@env';
+import { API_URL } from '../../constants';
 
 type EventForm = {
   eventName: string;
