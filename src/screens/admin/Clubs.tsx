@@ -171,6 +171,7 @@ const AdminClubs = ({ navigation }: any) => {
                   className="bg-white border-[1px] border-gray-300 text-black rounded p-2 focus:border-gray-400"
                   cursorColor="green"
                   placeholder="Club Name"
+                  placeholderTextColor="#AAAAAA"
                   onChangeText={(text) => {
                     setClubName(text);
                     setClubNameError(null);

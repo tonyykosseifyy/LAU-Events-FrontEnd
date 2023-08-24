@@ -217,6 +217,7 @@ const AddEvent = ({ navigation }: any) => {
                   cursorColor="green"
                   onBlur={onBlur}
                   placeholder="Event Name"
+                  placeholderTextColor="#AAAAAA"
                   onChangeText={(value) => onChange(value)}
                   value={value}
                 />
@@ -274,6 +275,7 @@ const AddEvent = ({ navigation }: any) => {
                   cursorColor="green"
                   onBlur={onBlur}
                   placeholder="Event Description"
+                  placeholderTextColor="#AAAAAA"
                   onChangeText={(value) => onChange(value)}
                   value={value}
                   multiline={true}
@@ -360,6 +362,7 @@ const AddEvent = ({ navigation }: any) => {
                     cursorColor="green"
                     onBlur={onBlur}
                     placeholder="Start Date"
+                    placeholderTextColor="#AAAAAA"
                     value={dayjs(value).format('DD MMM YYYY hh:mm A')}
                     editable={false}
                   />
@@ -401,6 +404,7 @@ const AddEvent = ({ navigation }: any) => {
                     cursorColor="green"
                     onBlur={onBlur}
                     placeholder="End Date"
+                    placeholderTextColor="#AAAAAA"
                     value={dayjs(value).format('DD MMM YYYY hh:mm A')}
                     editable={false}
                   />

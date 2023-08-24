@@ -108,6 +108,7 @@ const Home = ({ navigation }: any) => {
         <TextInput
           className="bg-white-600 px-4 py-4 rounded-full w-full mt-14 relative"
           placeholder="Search by Event"
+          placeholderTextColor="#AAAAAA"
           value={search}
           onChange={(e) => {
             setSearch(e.nativeEvent.text);

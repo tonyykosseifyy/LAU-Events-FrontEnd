@@ -93,6 +93,7 @@ const Verification = ({ navigation }: any) => {
               <>
                 <TextInput
                   placeholder="Code"
+                  placeholderTextColor="#AAAAAA"
                   className="border-b-[1px] border-gray w-full mt-5"
                   onBlur={onBlur}
                   cursorColor="green"

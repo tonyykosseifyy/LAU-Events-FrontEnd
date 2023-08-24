@@ -113,6 +113,7 @@ const Signup = ({ navigation }: any) => {
               <>
                 <TextInput
                   placeholder="Email"
+                  placeholderTextColor="#AAAAAA"
                   className="border-b-[1px] border-gray w-full mt-5"
                   onBlur={onBlur}
                   cursorColor="green"
@@ -132,6 +133,7 @@ const Signup = ({ navigation }: any) => {
               <>
                 <TextInput
                   placeholder="Password"
+                  placeholderTextColor="#AAAAAA"
                   onBlur={onBlur}
                   className="border-b-[1px] border-gray w-full mt-9"
                   cursorColor="green"
