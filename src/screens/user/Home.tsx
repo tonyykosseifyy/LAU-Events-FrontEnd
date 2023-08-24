@@ -12,6 +12,7 @@ import { EventApi } from '../../utils/api/crud/events';
 import { FlatList } from 'react-native-gesture-handler';
 import EventCard from '../../components/EventCard';
 import { Event } from '../../models/event';
+import { isAxiosError } from '../../utils/errors/helpers';
 
 enum Fitler {
   ALL = 'all',
@@ -47,12 +48,21 @@ const Home = ({ navigation }: any) => {
     ['events', session],
     async () => {
       const eventsApi = new EventApi(session);
-      const res = await eventsApi.find();
-      // filter the old events out
+      try {
+        const res = await eventsApi.find();
+        // filter the old events out
 
-      return res.filter((event) => {
-        return dayjs(event.startTime).isAfter(dayjs());
-      });
+        return res.filter((event) => {
+          return dayjs(event.startTime).isAfter(dayjs());
+        });
+      } catch (e) {
+        if (isAxiosError(e)) {
+          if (e.status === 404 || e.status === 401) {
+            authContext.signOut();
+          }
+        }
+        return [];
+      }
     },
     {
       enabled: !!session,
