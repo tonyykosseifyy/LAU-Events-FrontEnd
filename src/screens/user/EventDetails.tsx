@@ -111,7 +111,7 @@ export const EventDetails = ({ route, navigation }: any) => {
                 return;
               }
 
-              const calendarId = await Calendar.getCalendarsAsync();
+              const calendarId = await Calendar.getCalendarsAsync(Calendar.EntityTypes.EVENT);
               const events = await Calendar.getEventsAsync(
                 [calendarId[0].id],
                 event.startTime,
@@ -143,11 +143,19 @@ export const EventDetails = ({ route, navigation }: any) => {
 
               updateUserEventEntry(UserEventStatus.Accepted, event.userEventId);
 
-              // user expo calendar to add event to calendar
               const eventDetails = {
                 title: event?.eventName,
                 startDate: event?.startTime,
                 endDate: event?.endTime,
+                notes: `Event created by the following Club: ${
+                  event.clubs ? event?.clubs[0].clubName : 'Unkown Club'
+                }\n\nDescription: ${
+                  event.eventDescription
+                }\n\nAdded to the calendar by the LAU Events App`,
+                alarms: [
+                  { relativeOffset: -1 * 24 * 60, method: Calendar.AlarmMethod.ALERT },
+                  { relativeOffset: -1 * 60, method: Calendar.AlarmMethod.ALERT },
+                ],
               };
 
               const userEventApi = new UserEventApi(session);
@@ -160,8 +168,12 @@ export const EventDetails = ({ route, navigation }: any) => {
               if (!permission) {
                 return;
               }
-              const calendarId = await Calendar.getCalendarsAsync();
-              Calendar.createEventAsync(calendarId[0].id, eventDetails);
+              const calendarId = await Calendar.getCalendarsAsync(Calendar.EntityTypes.EVENT);
+              const calenderEventId = await Calendar.createEventAsync(
+                calendarId.find((calendar) => calendar.allowsModifications)?.id || calendarId[0].id,
+                eventDetails
+              );
+              Calendar.openEventInCalendar(calenderEventId);
               navigation.goBack();
             }}>
             <TextWrapper className="text-white text-base">Accept</TextWrapper>
@@ -190,21 +202,50 @@ export const EventDetails = ({ route, navigation }: any) => {
               onPress={async () => {
                 const eventId = event?.id;
                 if (!eventId) return;
+                console.log('Accepting an event ...');
                 createUserEventEntry(UserEventStatus.Accepted, eventId);
-                // user expo calendar to add event to calendar
+                console.log('Event accepted in database');
+
                 const eventDetails = {
                   title: event?.eventName,
                   startDate: event?.startTime,
                   endDate: event?.endTime,
+                  notes: `Event created by the following Club: ${
+                    event.clubs ? event?.clubs[0].clubName : 'Unkown Club'
+                  }\n\nDescription: ${
+                    event.eventDescription
+                  }\n\nAdded to the calendar by the LAU Events App`,
+                  alarms: [
+                    { relativeOffset: -1 * 24 * 60, method: Calendar.AlarmMethod.ALERT },
+                    { relativeOffset: -1 * 60, method: Calendar.AlarmMethod.ALERT },
+                  ],
                 };
-
+                console.log('Event details created to be added to calendar');
                 // request permission to access calendar
                 const permission = await requestCalendarPermission();
+                console.log('Permission to access calendar requested');
                 if (!permission) {
                   return;
                 }
-                const calendarId = await Calendar.getCalendarsAsync();
-                Calendar.createEventAsync(calendarId[0].id, eventDetails);
+                console.log('Permission granted');
+                const calendarId = await Calendar.getCalendarsAsync(Calendar.EntityTypes.EVENT);
+                calendarId.forEach((calendar) => {
+                  console.log('Calendar ID:', calendar.id);
+                  console.log('Calendar Name:', calendar.title);
+                  console.log('Allowed Permissions:', calendar.allowsModifications);
+                });
+
+                console.log('Calendar ID fetched');
+                const calenderEventId = await Calendar.createEventAsync(
+                  // get the first calendar that allows modifications
+                  calendarId.find((calendar) => calendar.allowsModifications)?.id ||
+                    calendarId[0].id,
+                  eventDetails
+                );
+                console.log('Event added to calendar');
+                // Android only
+                Calendar.openEventInCalendar(calenderEventId);
+                console.log('Event opened in calendar');
                 navigation.goBack();
               }}>
               <TextWrapper className="text-white text-base">Accept</TextWrapper>

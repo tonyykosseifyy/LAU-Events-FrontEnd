@@ -125,6 +125,15 @@ const Verification = ({ navigation }: any) => {
             <Image source={require('../../assets/arrow-right.png')}></Image>
           </TouchableHighlight>
         </View>
+        <View className="w-full flex flex-row justify-end mt-8">
+          <TextWrapper
+            className="text-sm text-gray underline"
+            onPress={() => {
+              navigation.navigate('Signup');
+            }}>
+            Go Back
+          </TextWrapper>
+        </View>
       </ScrollView>
     </SafeAreaView>
   );

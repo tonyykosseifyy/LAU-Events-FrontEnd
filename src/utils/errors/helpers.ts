@@ -38,6 +38,10 @@ export function unWrapAuthError(error: AxiosError<{} | unknown> | undefined): st
     return 'Something went wrong, please try again';
   }
 
+  if (error.response.status === 429) {
+    return 'Too many requests, please try again later';
+  }
+
   const res: any = error.response.data;
   return res.message || res.error || 'Something went wrong, please try again';
 }
