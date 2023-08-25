@@ -170,7 +170,7 @@ export const EventDetails = ({ route, navigation }: any) => {
               }
               const calendarId = await Calendar.getCalendarsAsync(Calendar.EntityTypes.EVENT);
               const calenderEventId = await Calendar.createEventAsync(
-                calendarId[0].id,
+                calendarId.find((calendar) => calendar.allowsModifications)?.id || calendarId[0].id,
                 eventDetails
               );
               Calendar.openEventInCalendar(calenderEventId);
@@ -229,12 +229,21 @@ export const EventDetails = ({ route, navigation }: any) => {
                 }
                 console.log('Permission granted');
                 const calendarId = await Calendar.getCalendarsAsync(Calendar.EntityTypes.EVENT);
+                calendarId.forEach((calendar) => {
+                  console.log('Calendar ID:', calendar.id);
+                  console.log('Calendar Name:', calendar.title);
+                  console.log('Allowed Permissions:', calendar.allowsModifications);
+                });
+
                 console.log('Calendar ID fetched');
                 const calenderEventId = await Calendar.createEventAsync(
-                  calendarId[0].id,
+                  // get the first calendar that allows modifications
+                  calendarId.find((calendar) => calendar.allowsModifications)?.id ||
+                    calendarId[0].id,
                   eventDetails
                 );
                 console.log('Event added to calendar');
+                // Android only
                 Calendar.openEventInCalendar(calenderEventId);
                 console.log('Event opened in calendar');
                 navigation.goBack();
