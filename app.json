@@ -16,6 +16,10 @@
       "config": {
         "useNonExemptEncryption": false
       },
+      "infoPlist": {
+        "NSRemindersUsageDescription": "Access to the calendar is necessary for the purpose of data integration with calendar of the device.",
+        "NSCalendarsUsageDescription": "Access to the calendar is necessary for the purpose of data integration with calendar of the device. Consent for access is voluntary, but failure to do so may result in restriction or loss of the functionality."
+      },
       "bundleIdentifier": "com.murffyy.LAUEventsAppFrontend"
     },
     "android": {
