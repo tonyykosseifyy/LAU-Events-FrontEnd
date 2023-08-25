@@ -14,6 +14,7 @@ import { isAxiosError } from 'axios';
 import { getAxiosError } from '../../utils/errors';
 import * as FileSystem from 'expo-file-system';
 import { API_URL } from '../../constants';
+import clsx from 'clsx';
 
 const event_placeholder = require('../../../assets/event_image_placeholder.png');
 
@@ -25,6 +26,7 @@ const AdminClubs = ({ navigation }: any) => {
   const [clubName, setClubName] = useState('');
   const [clubNameError, setClubNameError] = useState<string | null>(null);
   const [clubImageError, setClubImageError] = useState<string | null>(null);
+  const [isSubmitting, setIsSubmitting] = useState(false);
 
   const [image, setImage] = useState<ImagePicker.ImagePickerAsset | null>(null);
   const { data: clubs, isLoading } = useQuery(
@@ -50,16 +52,19 @@ const AdminClubs = ({ navigation }: any) => {
   const addClub = async () => {
     if (!clubName || clubName.length < 3) {
       setClubNameError('Please enter a valid club name');
+      setIsSubmitting(false);
       return;
     }
 
     if (image === null) {
       setClubImageError('Please select an image');
+      setIsSubmitting(false);
       return;
     }
 
     if (image.fileSize && image.fileSize > 5 * 1024 * 1024) {
       setClubImageError('Please select an image less than 5mb');
+      setIsSubmitting(false);
       return;
     }
 
@@ -77,6 +82,7 @@ const AdminClubs = ({ navigation }: any) => {
       });
       if (res.status !== 200) {
         setClubImageError('Could not upload image, please try again');
+        setIsSubmitting(false);
         return;
       }
       const body: any = JSON.parse(res.body);
@@ -88,11 +94,13 @@ const AdminClubs = ({ navigation }: any) => {
         console.log(e);
         setClubImageError('Could not upload image, please try again');
       }
+      setIsSubmitting(false);
       return;
     }
 
     if (!imageUrl) {
       setClubImageError('Could not upload image, please try again');
+      setIsSubmitting(false);
       return;
     }
 
@@ -110,12 +118,14 @@ const AdminClubs = ({ navigation }: any) => {
       setModalVisible(false);
       setClubName('');
       setClubNameError(null);
+      setIsSubmitting(false);
     } catch (e) {
       if (isAxiosError(e)) {
         setClubNameError(getAxiosError(e));
       } else {
         setClubNameError('Something went wrong, club already exists');
       }
+      setIsSubmitting(false);
     }
   };
 
@@ -228,8 +238,12 @@ const AdminClubs = ({ navigation }: any) => {
               </Pressable>
               <View className="w-4" />
               <Pressable
-                className="bg-brand px-8 py-2 rounded-lg"
+                className={clsx('bg-brand px-8 py-2 rounded-lg', {
+                  'bg-gray': isSubmitting,
+                })}
+                disabled={isSubmitting}
                 onPress={() => {
+                  setIsSubmitting(true);
                   addClub();
                 }}>
                 <TextWrapper className="text-white text-base">Add</TextWrapper>

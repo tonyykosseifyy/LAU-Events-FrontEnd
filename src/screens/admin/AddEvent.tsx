@@ -24,6 +24,7 @@ import { getAxiosError } from '../../utils/errors';
 import * as ImagePicker from 'expo-image-picker';
 import * as FileSystem from 'expo-file-system';
 import { API_URL } from '../../constants';
+import clsx from 'clsx';
 
 type EventForm = {
   eventName: string;
@@ -64,6 +65,7 @@ const AddEvent = ({ navigation }: any) => {
   const session = useSession(authContext.authState);
 
   const [clubs, setClubs] = useState<Club[]>([]);
+  const [isSubmitting, setIsSubmitting] = useState<boolean>(false);
 
   useEffect(() => {
     if (!session) return;
@@ -96,15 +98,18 @@ const AddEvent = ({ navigation }: any) => {
     setError(null);
     if (selectedClubs.length === 0) {
       setClubsError('Select at least one club');
+      setIsSubmitting(false);
       return;
     }
     if (image === null) {
       setEventImageError('Please select an image');
+      setIsSubmitting(false);
       return;
     }
 
     if (image.fileSize && image.fileSize > 5 * 1024 * 1024) {
       setEventImageError('Please select an image less than 5mb');
+      setIsSubmitting(false);
       return;
     }
 
@@ -122,6 +127,7 @@ const AddEvent = ({ navigation }: any) => {
       });
       if (res.status !== 200) {
         setEventImageError('Could not upload image, please try again');
+        setIsSubmitting(false);
         return;
       }
       const body: any = JSON.parse(res.body);
@@ -133,11 +139,13 @@ const AddEvent = ({ navigation }: any) => {
         console.log(e);
         setEventImageError('Could not upload image, please try again');
       }
+      setIsSubmitting(false);
       return;
     }
 
     if (!imageUrl) {
       setEventImageError('Could not upload image, please try again');
+      setIsSubmitting(false);
       return;
     }
 
@@ -158,11 +166,13 @@ const AddEvent = ({ navigation }: any) => {
         queryClient.invalidateQueries(['events']);
         navigation.goBack();
       }
+      setIsSubmitting(false);
     } catch (e) {
       if (isAxiosError(e)) {
         setError(getAxiosError(e));
       }
       console.log(e);
+      setIsSubmitting(false);
     }
   };
 
@@ -427,11 +437,15 @@ const AddEvent = ({ navigation }: any) => {
           </Pressable>
           <View className="w-4" />
           <Pressable
-            className="bg-brand px-8 py-2 rounded-lg"
+            className={clsx('bg-brand px-8 py-2 rounded-lg', {
+              'bg-gray': isSubmitting,
+            })}
+            disabled={isSubmitting}
             onPress={() => {
               trigger();
               if (isValid) {
                 const vals = getValues();
+                setIsSubmitting(true);
                 onSubmit(vals);
               }
             }}>
