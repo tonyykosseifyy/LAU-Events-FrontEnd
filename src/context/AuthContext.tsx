@@ -216,6 +216,7 @@ export function AuthProvider({ children }: PropsWithChildren) {
         });
       } catch (e) {
         console.log(e);
+        throw e;
       }
     },
     []
