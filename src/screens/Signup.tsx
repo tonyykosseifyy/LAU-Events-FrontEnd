@@ -218,7 +218,7 @@ const Signup = ({ navigation }: any) => {
               trigger();
               if (isValid) {
                 const { email, password, major } = getValues();
-                onSubmit({ email, password, major });
+                onSubmit({ email: email.toLowerCase(), password, major });
               }
             }}>
             <Image source={require('../../assets/arrow-right.png')}></Image>
