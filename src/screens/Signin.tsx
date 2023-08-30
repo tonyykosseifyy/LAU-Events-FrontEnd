@@ -150,7 +150,7 @@ const Signin = ({ navigation }: any) => {
               trigger();
               if (isValid) {
                 const { email, password } = getValues();
-                onSubmit({ email, password });
+                onSubmit({ email: email.toLowerCase(), password });
               }
             }}>
             <Image source={require('../../assets/arrow-right.png')}></Image>
