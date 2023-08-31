@@ -169,14 +169,13 @@ const Dashboard = ({ navigation }: any) => {
               <>
                 <View className="flex flex-row w-full justify-between items-center">
                   <TextWrapper className="text-2xl text-black">Dashboard</TextWrapper>
-                  <LogoutSVG
-                    width={20}
-                    height={20}
-                    color="#006E58"
+                  <Pressable
+                    className="w-12 h-12"
                     onPress={() => {
                       navigation.navigate('Logout');
-                    }}
-                  />
+                    }}>
+                    <LogoutSVG width={20} height={20} color="#006E58" />
+                  </Pressable>
                 </View>
                 <Modal
                   animationType="slide"
