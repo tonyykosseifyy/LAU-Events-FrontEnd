@@ -265,7 +265,7 @@ export const EventDetails = ({ route, navigation }: any) => {
   };
 
   return (
-    <SafeAreaView className="w-full h-full bg-brand-lighter relative py-10 px-8 flex justify-between">
+    <SafeAreaView className="w-full h-full bg-brand-lighter relative py-10 px-8 flex justify-between overflow-hidden">
       <View className="absolute top-0 left-0">
         <WaveTopLeftSVG />
       </View>
