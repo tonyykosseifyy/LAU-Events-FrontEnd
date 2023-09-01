@@ -1,5 +1,5 @@
 import { View, Text, TextInput, Pressable, ActivityIndicator } from 'react-native';
-import React, { useEffect, useMemo, useState } from 'react';
+import React, { useEffect, useMemo, useRef, useState } from 'react';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import WaveTopRightSVG from '../../../assets/wave_top_right.svg';
 import TextWrapper from '../../components/TextWrapper';
@@ -13,6 +13,7 @@ import { FlatList } from 'react-native-gesture-handler';
 import EventCard from '../../components/EventCard';
 import { Event } from '../../models/event';
 import { isAxiosError } from '../../utils/errors/helpers';
+import * as Notifications from 'expo-notifications';
 
 enum Fitler {
   ALL = 'all',
@@ -103,6 +104,31 @@ const Home = ({ navigation }: any) => {
       setFilteredEvents(events);
     }
   };
+
+  const responseListener = useRef<any>();
+
+  useEffect(() => {
+    responseListener.current = Notifications.addNotificationResponseReceivedListener((response) => {
+      const data = response.notification.request.content.data;
+      console.log(data);
+      if (!data) {
+        return;
+      }
+
+      // navigate to event details
+      if (data.eventId) {
+        if (authContext.authState.authenticated) {
+          navigation.navigate('EventDetails', { eventId: data.eventId });
+        } else {
+          navigation.navigate('Signin');
+        }
+      }
+    });
+
+    return () => {
+      Notifications.removeNotificationSubscription(responseListener.current);
+    };
+  }, []);
 
   return (
     <SafeAreaView className="bg-brand-lighter w-full h-full py-10 px-6">

@@ -13,6 +13,7 @@ import { AuthApi, LoginResponse, SignUpResposne } from '../utils/api/auth/auth.a
 import { User, UserRole } from '../models/user';
 import useSession from '../hooks/useSession';
 import { AppState } from 'react-native';
+import registerForPushNotificationsAsync from '../utils/notifications';
 
 const SECURE_STORE_USER_KEY = 'user';
 
@@ -27,7 +28,6 @@ interface AuthContextProps {
   signOut: () => void;
   signUp: (opts: { email: string; password: string; major: string }) => Promise<void>;
   verify: (code: string) => Promise<void>;
-  registerNotificationToken: (token: string | undefined) => void;
   authState: AuthState;
 }
 
@@ -46,7 +46,6 @@ export function useAuth(): AuthContextProps {
         authenticated: null,
         isVerified: null,
       },
-      registerNotificationToken: () => {},
     };
   }
   return context;
@@ -58,8 +57,6 @@ export function AuthProvider({ children }: PropsWithChildren) {
     authenticated: null,
     isVerified: null,
   });
-
-  const [notificationToken, setNotificationToken] = useState<string | undefined>(undefined);
 
   const appState = useRef(AppState.currentState);
 
@@ -108,6 +105,7 @@ export function AuthProvider({ children }: PropsWithChildren) {
     () =>
       async ({ email, password, major }: { email: string; password: string; major: string }) => {
         try {
+          const notificationToken = await registerForPushNotificationsAsync();
           const res = await new AuthApi().signup(email, password, major, notificationToken);
           const { message, userId } = res;
           await SecureStore.setItemAsync(
@@ -331,9 +329,6 @@ export function AuthProvider({ children }: PropsWithChildren) {
         },
         verify: verify,
         authState,
-        registerNotificationToken: (token: string | undefined) => {
-          setNotificationToken(token);
-        },
       }}>
       {children}
     </AuthContext.Provider>
