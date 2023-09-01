@@ -1,4 +1,4 @@
-import { NavigationContainer, useNavigationState } from '@react-navigation/native';
+import { NavigationContainer, useNavigation, useNavigationState } from '@react-navigation/native';
 import { createNativeStackNavigator } from '@react-navigation/native-stack';
 import { useFonts } from 'expo-font';
 import * as ScreenOrientation from 'expo-screen-orientation';
@@ -41,7 +41,7 @@ const RootStack = createNativeStackNavigator();
 export default function RootLayout() {
   const [firstLaunch, setFirstLaunch] = useState<boolean | null>(null);
 
-  const { authState, signOut, registerNotificationToken } = useAuth();
+  const { authState, signOut } = useAuth();
   const responseListener = useRef<any>();
 
   useEffect(() => {
@@ -55,18 +55,6 @@ export default function RootLayout() {
       }
     }
     setData();
-
-    registerForPushNotificationsAsync().then((token) => {
-      registerNotificationToken(token);
-    });
-
-    responseListener.current = Notifications.addNotificationResponseReceivedListener((response) => {
-      console.log(response);
-    });
-
-    return () => {
-      Notifications.removeNotificationSubscription(responseListener.current);
-    };
   }, []);
 
   const [fontsLoaded] = useFonts({

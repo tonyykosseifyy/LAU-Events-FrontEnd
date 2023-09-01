@@ -8,7 +8,7 @@ import {
   Share,
   ScrollView,
 } from 'react-native';
-import React, { useMemo } from 'react';
+import React, { useEffect, useMemo, useRef, useState } from 'react';
 import TextWrapper from '../../components/TextWrapper';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { useAuth } from '../../context/AuthContext';
@@ -27,6 +27,7 @@ import { getAxiosError } from '../../utils/errors';
 import * as FileSystem from 'expo-file-system';
 import * as XLSX from 'xlsx';
 import * as Sharing from 'expo-sharing';
+import * as Notifications from 'expo-notifications';
 import dayjs from 'dayjs';
 
 const Dashboard = ({ navigation }: any) => {
@@ -155,8 +156,32 @@ const Dashboard = ({ navigation }: any) => {
     }
   };
 
-  const [modalVisible, setModalVisible] = React.useState(false);
+  const [modalVisible, setModalVisible] = useState(false);
 
+  const responseListener = useRef<any>();
+
+  useEffect(() => {
+    responseListener.current = Notifications.addNotificationResponseReceivedListener((response) => {
+      const data = response.notification.request.content.data;
+      console.log(data);
+      if (!data) {
+        return;
+      }
+
+      // navigate to event details
+      if (data.eventId) {
+        if (authContext.authState.authenticated) {
+          navigation.navigate('EventDetails', { eventId: data.eventId });
+        } else {
+          navigation.navigate('Signin');
+        }
+      }
+    });
+
+    return () => {
+      Notifications.removeNotificationSubscription(responseListener.current);
+    };
+  }, []);
   return (
     <SafeAreaView className="bg-brand-lighter w-full h-full py-4 px-6">
       <View className="h-fit w-full">
@@ -170,7 +195,7 @@ const Dashboard = ({ navigation }: any) => {
                 <View className="flex flex-row w-full justify-between items-center">
                   <TextWrapper className="text-2xl text-black">Dashboard</TextWrapper>
                   <Pressable
-                    className="w-12 h-12"
+                    className="w-10 h-10 flex justify-center items-center"
                     onPress={() => {
                       navigation.navigate('Logout');
                     }}>
