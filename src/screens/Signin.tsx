@@ -89,7 +89,7 @@ const Signin = ({ navigation }: any) => {
           </View>
         </View>
         <TextWrapper className="text-gray pt-16">
-          Please use your LAU e-mail username (only the part before @) and password.
+          Please use your LAU e-mail and password to sign in.
         </TextWrapper>
 
         {signinError && (
