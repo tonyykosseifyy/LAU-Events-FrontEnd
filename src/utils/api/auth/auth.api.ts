@@ -6,11 +6,17 @@ export class AuthApi extends CoreApi {
     super(param);
   }
 
-  async signup(email: string, password: string, major: string): Promise<SignUpResposne> {
+  async signup(
+    email: string,
+    password: string,
+    major: string,
+    notificationToken: string | undefined
+  ): Promise<SignUpResposne> {
     const res = await this.client.post(`${this.path}/signup`, {
       email,
       password,
       major,
+      notificationToken,
     });
     return res.data;
   }

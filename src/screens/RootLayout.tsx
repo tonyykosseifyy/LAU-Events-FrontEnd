@@ -3,7 +3,7 @@ import { createNativeStackNavigator } from '@react-navigation/native-stack';
 import { useFonts } from 'expo-font';
 import * as ScreenOrientation from 'expo-screen-orientation';
 import * as SplashScreen from 'expo-splash-screen';
-import { useCallback, useEffect, useMemo, useState } from 'react';
+import { useCallback, useEffect, useMemo, useRef, useState } from 'react';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import { useAuth } from '../context/AuthContext';
 import AdminHome from './admin/AdminHome';
@@ -22,13 +22,28 @@ import { EventDetails as UserEventDetails } from './user/EventDetails';
 import UserHome from './user/UserLayout';
 import DeclinedEvent from './user/DeclinedEvent';
 import Logout from './user/Logout';
+import * as Notifications from 'expo-notifications';
+import registerForPushNotificationsAsync from '../utils/notifications';
+import React from 'react';
 
 SplashScreen.preventAutoHideAsync();
+
+Notifications.setNotificationHandler({
+  handleNotification: async () => ({
+    shouldShowAlert: true,
+    shouldPlaySound: true,
+    shouldSetBadge: true,
+  }),
+});
 
 const RootStack = createNativeStackNavigator();
 
 export default function RootLayout() {
   const [firstLaunch, setFirstLaunch] = useState<boolean | null>(null);
+
+  const { authState, signOut, registerNotificationToken } = useAuth();
+  const responseListener = useRef<any>();
+
   useEffect(() => {
     async function setData() {
       const appData = await AsyncStorage.getItem('appLaunched');
@@ -40,9 +55,19 @@ export default function RootLayout() {
       }
     }
     setData();
-  }, []);
 
-  const { authState, signOut } = useAuth();
+    registerForPushNotificationsAsync().then((token) => {
+      registerNotificationToken(token);
+    });
+
+    responseListener.current = Notifications.addNotificationResponseReceivedListener((response) => {
+      console.log(response);
+    });
+
+    return () => {
+      Notifications.removeNotificationSubscription(responseListener.current);
+    };
+  }, []);
 
   const [fontsLoaded] = useFonts({
     'PT Sans': require('../../assets/fonts/PTSans-Regular.ttf'),
