@@ -117,6 +117,7 @@ const AdminClubs = ({ navigation }: any) => {
       queryClient.refetchQueries(['AdminClubs']);
       setModalVisible(false);
       setClubName('');
+      setImage(null);
       setClubNameError(null);
       setIsSubmitting(false);
     } catch (e) {
@@ -230,6 +231,7 @@ const AdminClubs = ({ navigation }: any) => {
             <View className="flex flex-row w-full justify-end items-center mt-10">
               <Pressable
                 className="bg-gray/40 px-6 py-2 rounded-lg"
+                disabled={isSubmitting}
                 onPress={() => {
                   setModalVisible(false);
                   setClubName('');
@@ -239,14 +241,18 @@ const AdminClubs = ({ navigation }: any) => {
               <View className="w-4" />
               <Pressable
                 className={clsx('bg-brand px-8 py-2 rounded-lg', {
-                  'bg-gray': isSubmitting,
+                  'bg-brand-dark': isSubmitting,
                 })}
                 disabled={isSubmitting}
                 onPress={() => {
                   setIsSubmitting(true);
                   addClub();
                 }}>
-                <TextWrapper className="text-white text-base">Add</TextWrapper>
+                {isSubmitting ? (
+                  <ActivityIndicator size="large" color="white" />
+                ) : (
+                  <TextWrapper className="text-white text-base">Add</TextWrapper>
+                )}
               </Pressable>
             </View>
           </View>

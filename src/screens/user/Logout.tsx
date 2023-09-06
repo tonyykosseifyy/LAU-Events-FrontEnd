@@ -8,7 +8,7 @@ const Logout = ({ navigation }: any) => {
   const authContext = useAuth();
   return (
     <SafeAreaView className="bg-brand-lighter w-full h-full py-10 px-6 flex items-center justify-center">
-      <View className="bg-white p-8 flex justify-between flex-col">
+      <View className="bg-white p-8 mx-4 flex justify-between flex-col">
         <TextWrapper className="text-black text-xl">Are you sure you want to logout?</TextWrapper>
         <View className="flex flex-row w-full justify-between items-center mt-10">
           <Pressable

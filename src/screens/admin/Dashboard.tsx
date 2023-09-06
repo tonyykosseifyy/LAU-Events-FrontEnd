@@ -140,7 +140,6 @@ const Dashboard = ({ navigation }: any) => {
       const jsonData = JSON.stringify(res, null, 2);
       const fileName = `DataStats-${dayjs().format('YYYY-MM-DDTHH:mm:ss')}.json`;
       const jsonFilePath = `${FileSystem.documentDirectory}${fileName}`;
-      console.log(jsonData);
       await FileSystem.writeAsStringAsync(jsonFilePath, jsonData, {
         encoding: FileSystem.EncodingType.UTF8,
       });
@@ -163,7 +162,7 @@ const Dashboard = ({ navigation }: any) => {
   useEffect(() => {
     responseListener.current = Notifications.addNotificationResponseReceivedListener((response) => {
       const data = response.notification.request.content.data;
-      console.log(data);
+
       if (!data) {
         return;
       }

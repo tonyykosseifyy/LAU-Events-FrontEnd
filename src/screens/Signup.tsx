@@ -1,17 +1,12 @@
 import * as yup from 'yup';
-import {
-  View,
-  Image,
-  Pressable,
-  Button,
-  TouchableWithoutFeedback,
-  TouchableHighlight,
-} from 'react-native';
+import { View, Image, TouchableHighlight, ActivityIndicator, TouchableOpacity } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import React, { useEffect, useState } from 'react';
 import TextWrapper from '../components/TextWrapper';
 import { yupResolver } from '@hookform/resolvers/yup';
 import LogoNoText from '../../assets/logo_no_text.svg';
+import EyeOpenSVG from '../../assets/Icons/eye_open.svg';
+import EyeClosedSVG from '../../assets/Icons/eye_closed.svg';
 import { ScrollView, TextInput } from 'react-native-gesture-handler';
 import { Controller, Form, useForm } from 'react-hook-form';
 import { useAuth } from '../context/AuthContext';
@@ -25,6 +20,7 @@ import clsx from 'clsx';
 type SignUpForm = {
   email: string;
   password: string;
+  confirmPassword: string;
   major: string;
 };
 
@@ -38,6 +34,11 @@ const SignUpFormSchema = yup.object().shape({
     .string()
     .required('Password is required')
     .min(8, 'Password must be at least 8 characters'),
+  confirmPassword: yup
+    .string()
+    .oneOf([yup.ref('password')], 'Passwords must match')
+    .required(),
+
   // major should be of type LauMajor
   major: yup.string().required('Major is required'),
 });
@@ -55,6 +56,8 @@ const Signup = ({ navigation }: any) => {
 
   const [signupError, setSignupError] = useState<string | null>(null);
   const [isSubmitting, setIsSubmitting] = useState<boolean>(false);
+  const [showPassword, setShowPassword] = useState<boolean>(false);
+  const [showConfirmPassword, setShowConfirmPassword] = useState<boolean>(false);
   const [dropDownTextColor, setDropDownTextColor] = useState<string>('#AAAAAA');
   useEffect(() => {
     // only if it set to false then we go to verification
@@ -105,7 +108,7 @@ const Signup = ({ navigation }: any) => {
         {signupError && (
           <TextWrapper className="text-error text-sm mt-3">{signupError}</TextWrapper>
         )}
-        <View className="flex flex-col w-full mt-8">
+        <View className="flex flex-col w-full mt-6">
           <Controller
             control={control}
             name="email"
@@ -131,21 +134,68 @@ const Signup = ({ navigation }: any) => {
             name="password"
             render={({ field: { onChange, onBlur, value } }) => (
               <>
-                <TextInput
-                  placeholder="Password"
-                  placeholderTextColor="#AAAAAA"
-                  onBlur={onBlur}
-                  className="border-b-[1px] border-gray w-full mt-9"
-                  cursorColor="green"
-                  textContentType="password"
-                  secureTextEntry={true}
-                  scrollEnabled={true}
-                  onChangeText={(value) => onChange(value)}
-                  value={value}
-                />
+                <View className="flex flex-row items-center justify-center border-b-[1px] border-gray mt-9 ">
+                  <TextInput
+                    placeholder="Password"
+                    placeholderTextColor="#AAAAAA"
+                    onBlur={onBlur}
+                    className="flex-1"
+                    cursorColor="green"
+                    textContentType="password"
+                    secureTextEntry={!showPassword}
+                    scrollEnabled={true}
+                    onChangeText={(value) => onChange(value)}
+                    value={value}
+                  />
+                  <TouchableOpacity
+                    onPress={() => setShowPassword(!showPassword)}
+                    className="w-8 h-8  flex items-center justify-center">
+                    {showPassword ? (
+                      <EyeOpenSVG width={24} height={24} color="#AAAAAA" />
+                    ) : (
+                      <EyeClosedSVG width={24} height={24} color="#AAAAAA" />
+                    )}
+                  </TouchableOpacity>
+                </View>
                 {errors.password && (
                   <TextWrapper className="text-error text-sm">
                     {errors.password.message}
+                  </TextWrapper>
+                )}
+              </>
+            )}
+          />
+          <Controller
+            control={control}
+            name="confirmPassword"
+            render={({ field: { onChange, onBlur, value } }) => (
+              <>
+                <View className="flex flex-row items-center justify-center border-b-[1px] border-gray mt-9 ">
+                  <TextInput
+                    placeholder="Confirm Password"
+                    placeholderTextColor="#AAAAAA"
+                    onBlur={onBlur}
+                    className="flex-1"
+                    cursorColor="green"
+                    textContentType="password"
+                    secureTextEntry={!showConfirmPassword}
+                    scrollEnabled={true}
+                    onChangeText={(value) => onChange(value)}
+                    value={value}
+                  />
+                  <TouchableOpacity
+                    onPress={() => setShowConfirmPassword(!showConfirmPassword)}
+                    className="w-8 h-8  flex items-center justify-center">
+                    {showConfirmPassword ? (
+                      <EyeOpenSVG width={24} height={24} color="#AAAAAA" />
+                    ) : (
+                      <EyeClosedSVG width={24} height={24} color="#AAAAAA" />
+                    )}
+                  </TouchableOpacity>
+                </View>
+                {errors.confirmPassword && (
+                  <TextWrapper className="text-error text-sm">
+                    {errors.confirmPassword.message}
                   </TextWrapper>
                 )}
               </>
@@ -211,17 +261,21 @@ const Signup = ({ navigation }: any) => {
           <TextWrapper className="text-black text-2xl">Sign up</TextWrapper>
           <TouchableHighlight
             className={clsx('bg-brand rounded-full w-16 h-16 flex items-center justify-center', {
-              'bg-gray cursor-not-allowed': isSubmitting,
+              'bg-brand-dark cursor-not-allowed': isSubmitting,
             })}
             disabled={isSubmitting}
             onPress={() => {
               trigger();
               if (isValid) {
-                const { email, password, major } = getValues();
-                onSubmit({ email: email.toLowerCase(), password, major });
+                const { email, password, major, confirmPassword } = getValues();
+                onSubmit({ email: email.toLowerCase(), password, major, confirmPassword });
               }
             }}>
-            <Image source={require('../../assets/arrow-right.png')}></Image>
+            {isSubmitting ? (
+              <ActivityIndicator size="small" color="white" />
+            ) : (
+              <Image source={require('../../assets/arrow-right.png')}></Image>
+            )}
           </TouchableHighlight>
         </View>
         <View className="w-full flex flex-row items-center justify-between mt-5">

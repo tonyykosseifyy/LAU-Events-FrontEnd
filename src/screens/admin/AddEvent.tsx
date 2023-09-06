@@ -1,5 +1,13 @@
 import * as yup from 'yup';
-import { View, Text, Pressable, TextInput, Platform, ImageBackground } from 'react-native';
+import {
+  View,
+  Text,
+  Pressable,
+  TextInput,
+  Platform,
+  ImageBackground,
+  ActivityIndicator,
+} from 'react-native';
 import React, { useEffect, useState } from 'react';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import ArrowRight from '../../../assets/Icons/arrow_right.svg';
@@ -430,6 +438,7 @@ const AddEvent = ({ navigation }: any) => {
         <View className="flex flex-row w-full justify-between items-center mt-10 mb-14">
           <Pressable
             className="bg-gray/40 px-6 py-2 rounded-lg"
+            disabled={isSubmitting}
             onPress={() => {
               navigation.goBack();
             }}>
@@ -438,7 +447,7 @@ const AddEvent = ({ navigation }: any) => {
           <View className="w-4" />
           <Pressable
             className={clsx('bg-brand px-8 py-2 rounded-lg', {
-              'bg-gray': isSubmitting,
+              'bg-brand-dark': isSubmitting,
             })}
             disabled={isSubmitting}
             onPress={() => {
@@ -449,7 +458,11 @@ const AddEvent = ({ navigation }: any) => {
                 onSubmit(vals);
               }
             }}>
-            <TextWrapper className="text-white text-base">Add</TextWrapper>
+            {isSubmitting ? (
+              <ActivityIndicator size="small" color="white" />
+            ) : (
+              <TextWrapper className="text-white text-base">Add</TextWrapper>
+            )}
           </Pressable>
         </View>
       </ScrollView>

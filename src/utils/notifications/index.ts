@@ -11,12 +11,10 @@ export default async function registerForPushNotificationsAsync() {
     if (existingStatus !== 'granted') {
       const { status } = await Notifications.requestPermissionsAsync();
       finalStatus = status;
-      console.log('existingStatus', existingStatus);
     }
 
     if (finalStatus !== 'granted') {
       alert('Failed to get push token for push notification!');
-      console.log('finalStatus', finalStatus);
       return;
     }
 
@@ -25,9 +23,6 @@ export default async function registerForPushNotificationsAsync() {
         projectId: 'a9536565-bf98-4842-a7b9-07b3a85f11f3',
       })
     ).data;
-
-    // The token should be sent to the server so that it can be used to send push notifications to the device
-    console.log(token);
   } else {
     alert('Must use physical device for Push Notifications');
   }
