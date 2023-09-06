@@ -216,7 +216,12 @@ const AddEvent = ({ navigation }: any) => {
             onPress={() => {
               navigation.goBack();
             }}>
-            <ArrowRight width={18} height={18} color="#006E58" rotation={180}></ArrowRight>
+            <ArrowRight
+              width={18}
+              height={18}
+              color="#006E58"
+              style={{ transform: [{ rotate: '180deg' }] }}
+            />
           </Pressable>
           <TextWrapper className="text-2xl">Add Event</TextWrapper>
         </View>

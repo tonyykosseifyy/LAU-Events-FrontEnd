@@ -270,7 +270,12 @@ export const EventDetails = ({ route, navigation }: any) => {
           onPress={() => {
             navigation.goBack();
           }}>
-          <ArrowRight width={18} height={18} color="#fff" rotation={180}></ArrowRight>
+          <ArrowRight
+            width={18}
+            height={18}
+            color="#fff"
+            style={{ transform: [{ rotate: '180deg' }] }}
+          />
         </Pressable>
         <TextWrapper className="text-2xl">Event Details</TextWrapper>
       </View>
