@@ -1,23 +1,19 @@
 import * as yup from 'yup';
-import {
-  View,
-  Image,
-  Pressable,
-  Button,
-  TouchableWithoutFeedback,
-  TouchableHighlight,
-} from 'react-native';
+import { View, Image, TouchableHighlight, ActivityIndicator, TouchableOpacity } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
-import React, { useEffect } from 'react';
+import React, { useEffect, useState } from 'react';
 import TextWrapper from '../components/TextWrapper';
 import { yupResolver } from '@hookform/resolvers/yup';
 import LogoNoText from '../../assets/logo_no_text.svg';
+import EyeOpenSVG from '../../assets/Icons/eye_open.svg';
+import EyeClosedSVG from '../../assets/Icons/eye_closed.svg';
 import { ScrollView, TextInput } from 'react-native-gesture-handler';
 import { Controller, Form, useForm } from 'react-hook-form';
 import { useAuth } from '../context/AuthContext';
 import { isAxiosError, unWrapAuthError } from '../utils/errors';
 import { AxiosError } from 'axios';
 import { UserRole } from '../models/user';
+import clsx from 'clsx';
 
 type SignInForm = {
   email: string;
@@ -47,7 +43,9 @@ const Signin = ({ navigation }: any) => {
     resolver: yupResolver(SignInFormSchema),
   });
 
-  const [signinError, setSigninError] = React.useState<string | null>(null);
+  const [signinError, setSigninError] = useState<string | null>(null);
+  const [isSubmitting, setIsSubmitting] = useState<boolean>(false);
+  const [showPassword, setShowPassword] = useState<boolean>(false);
 
   useEffect(() => {
     // only if it set to false then we go to verification
@@ -66,14 +64,17 @@ const Signin = ({ navigation }: any) => {
 
   const onSubmit = async (data: SignInForm) => {
     setSigninError(null);
+    setIsSubmitting(true);
     try {
       await signIn(data);
+      setIsSubmitting(false);
     } catch (e) {
       if (isAxiosError(e)) {
         setSigninError(unWrapAuthError(e as AxiosError));
       } else {
         setSigninError('Something went wrong');
       }
+      setIsSubmitting(false);
     }
   };
 
@@ -121,18 +122,29 @@ const Signin = ({ navigation }: any) => {
             name="password"
             render={({ field: { onChange, onBlur, value } }) => (
               <>
-                <TextInput
-                  placeholder="Password"
-                  placeholderTextColor="#AAAAAA"
-                  onBlur={onBlur}
-                  className="border-b-[1px] border-gray w-full mt-14"
-                  cursorColor="green"
-                  textContentType="password"
-                  secureTextEntry={true}
-                  scrollEnabled={true}
-                  onChangeText={(value) => onChange(value)}
-                  value={value}
-                />
+                <View className="flex flex-row items-center justify-center border-b-[1px] border-gray mt-9 ">
+                  <TextInput
+                    placeholder="Password"
+                    placeholderTextColor="#AAAAAA"
+                    onBlur={onBlur}
+                    className="flex-1"
+                    cursorColor="green"
+                    textContentType="password"
+                    secureTextEntry={!showPassword}
+                    scrollEnabled={true}
+                    onChangeText={(value) => onChange(value)}
+                    value={value}
+                  />
+                  <TouchableOpacity
+                    onPress={() => setShowPassword(!showPassword)}
+                    className="w-8 h-8  flex items-center justify-center">
+                    {showPassword ? (
+                      <EyeOpenSVG width={24} height={24} color="#AAAAAA" />
+                    ) : (
+                      <EyeClosedSVG width={24} height={24} color="#AAAAAA" />
+                    )}
+                  </TouchableOpacity>
+                </View>
                 {errors.password && (
                   <TextWrapper className="text-error text-sm">
                     {errors.password.message}
@@ -145,7 +157,10 @@ const Signin = ({ navigation }: any) => {
         <View className="w-full flex flex-row items-center justify-between mt-12 z-10">
           <TextWrapper className="text-black text-2xl">Sign in</TextWrapper>
           <TouchableHighlight
-            className="bg-brand rounded-full w-16 h-16 flex items-center justify-center"
+            className={clsx('bg-brand rounded-full w-16 h-16 flex items-center justify-center', {
+              'bg-brand-dark cursor-not-allowed': isSubmitting,
+            })}
+            disabled={isSubmitting}
             onPress={() => {
               trigger();
               if (isValid) {
@@ -153,7 +168,11 @@ const Signin = ({ navigation }: any) => {
                 onSubmit({ email: email.toLowerCase(), password });
               }
             }}>
-            <Image source={require('../../assets/arrow-right.png')}></Image>
+            {isSubmitting ? (
+              <ActivityIndicator size="small" color="white" />
+            ) : (
+              <Image source={require('../../assets/arrow-right.png')}></Image>
+            )}
           </TouchableHighlight>
         </View>
         <View className="w-full flex flex-row items-center justify-between mt-5">

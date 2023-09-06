@@ -173,7 +173,10 @@ export const EventDetails = ({ route, navigation }: any) => {
                 calendarId.find((calendar) => calendar.allowsModifications)?.id || calendarId[0].id,
                 eventDetails
               );
-              Calendar.openEventInCalendar(calenderEventId);
+              // Android only
+              if (Platform.OS === 'android') {
+                Calendar.openEventInCalendar(calenderEventId);
+              }
               navigation.goBack();
             }}>
             <TextWrapper className="text-white text-base">Accept</TextWrapper>
@@ -202,9 +205,7 @@ export const EventDetails = ({ route, navigation }: any) => {
               onPress={async () => {
                 const eventId = event?.id;
                 if (!eventId) return;
-                console.log('Accepting an event ...');
                 createUserEventEntry(UserEventStatus.Accepted, eventId);
-                console.log('Event accepted in database');
 
                 const eventDetails = {
                   title: event?.eventName,
@@ -220,32 +221,23 @@ export const EventDetails = ({ route, navigation }: any) => {
                     { relativeOffset: -1 * 60, method: Calendar.AlarmMethod.ALERT },
                   ],
                 };
-                console.log('Event details created to be added to calendar');
                 // request permission to access calendar
                 const permission = await requestCalendarPermission();
-                console.log('Permission to access calendar requested');
                 if (!permission) {
                   return;
                 }
-                console.log('Permission granted');
                 const calendarId = await Calendar.getCalendarsAsync(Calendar.EntityTypes.EVENT);
-                calendarId.forEach((calendar) => {
-                  console.log('Calendar ID:', calendar.id);
-                  console.log('Calendar Name:', calendar.title);
-                  console.log('Allowed Permissions:', calendar.allowsModifications);
-                });
 
-                console.log('Calendar ID fetched');
                 const calenderEventId = await Calendar.createEventAsync(
                   // get the first calendar that allows modifications
                   calendarId.find((calendar) => calendar.allowsModifications)?.id ||
                     calendarId[0].id,
                   eventDetails
                 );
-                console.log('Event added to calendar');
                 // Android only
-                Calendar.openEventInCalendar(calenderEventId);
-                console.log('Event opened in calendar');
+                if (Platform.OS === 'android') {
+                  Calendar.openEventInCalendar(calenderEventId);
+                }
                 navigation.goBack();
               }}>
               <TextWrapper className="text-white text-base">Accept</TextWrapper>

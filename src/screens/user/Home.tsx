@@ -110,7 +110,7 @@ const Home = ({ navigation }: any) => {
   useEffect(() => {
     responseListener.current = Notifications.addNotificationResponseReceivedListener((response) => {
       const data = response.notification.request.content.data;
-      console.log(data);
+
       if (!data) {
         return;
       }

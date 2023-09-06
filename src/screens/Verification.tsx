@@ -1,12 +1,5 @@
 import * as yup from 'yup';
-import {
-  View,
-  Image,
-  Pressable,
-  Button,
-  TouchableWithoutFeedback,
-  TouchableHighlight,
-} from 'react-native';
+import { View, Image, TouchableHighlight, ActivityIndicator } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import React, { useEffect, useState } from 'react';
 import TextWrapper from '../components/TextWrapper';
@@ -112,7 +105,7 @@ const Verification = ({ navigation }: any) => {
           <TextWrapper className="text-black text-2xl">Verify</TextWrapper>
           <TouchableHighlight
             className={clsx('bg-brand rounded-full w-16 h-16 flex items-center justify-center', {
-              'bg-gray cursor-not-allowed': isSubmitting,
+              'bg-brand-dark cursor-not-allowed': isSubmitting,
             })}
             disabled={isSubmitting}
             onPress={() => {
@@ -122,7 +115,11 @@ const Verification = ({ navigation }: any) => {
                 onSubmit({ code });
               }
             }}>
-            <Image source={require('../../assets/arrow-right.png')}></Image>
+            {isSubmitting ? (
+              <ActivityIndicator size="small" color="white" />
+            ) : (
+              <Image source={require('../../assets/arrow-right.png')}></Image>
+            )}
           </TouchableHighlight>
         </View>
         <View className="w-full flex flex-row justify-end mt-8">
