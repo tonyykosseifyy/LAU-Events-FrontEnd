@@ -42,7 +42,12 @@ const MultiselectDropdown = ({
             ? selectedOptions.map((i) => i.clubName).join(', ')
             : 'Select Clubs'}
         </TextWrapper>
-        <ArrowRight width={12} height={12} rotation={90} color="#AAAAAA" />
+        <ArrowRight
+          width={12}
+          height={12}
+          color="#AAAAAA"
+          style={{ transform: [{ rotate: '180deg' }] }}
+        />
       </TouchableOpacity>
 
       {showDropdown && (
