@@ -131,68 +131,75 @@ const Home = ({ navigation }: any) => {
   }, []);
 
   return (
-    <SafeAreaView className="bg-brand-lighter w-full h-full py-10 px-6">
-      <View className="absolute top-0 right-0">
-        <WaveTopRightSVG />
-      </View>
-      <TextWrapper className="text-black text-2xl">Scheduled Events</TextWrapper>
-      <TextWrapper className="text-gray text-xl">
-        {dayjs().format('dddd, MMMM D, YYYY')}
-      </TextWrapper>
-
-      <View className="w-full relative">
-        <TextInput
-          className="bg-white-600 px-4 py-4 rounded-full w-full mt-14 relative"
-          placeholder="Search by Event"
-          placeholderTextColor="#AAAAAA"
-          value={search}
-          onChange={(e) => {
-            setSearch(e.nativeEvent.text);
-          }}
-          onSubmitEditing={() => {
-            updateFilters();
-            // reset the search
-            setSearch('');
-          }}
-          cursorColor="green"></TextInput>
-        <Pressable
-          className="bg-brand absolute bottom-2 right-2 rounded-full p-3 flex items-center justify-center"
-          onPress={() => {
-            updateFilters();
-            // reset the search
-            setSearch('');
-          }}>
-          <SearchSVG color="white" />
-        </Pressable>
-      </View>
-
-      <TextWrapper className="text-base mt-5">Upcoming Events</TextWrapper>
-      <View className="mt-5 flex flex-row items-center">
-        {filters.map((filter) => (
-          <Pressable
-            key={filter.value}
-            className={`px-4 py-2 rounded-full mr-2 ${
-              filterUsed === filter.value ? 'bg-brand text-white' : 'bg-white'
-            }`}
-            onPress={() => {
-              setFilterUsed(filter.value);
-              updateFilters(filter.value);
-            }}>
-            <TextWrapper
-              className={`text-sm ${filterUsed === filter.value ? 'text-white' : 'text-gray'}`}>
-              {filter.name}
-            </TextWrapper>
-          </Pressable>
-        ))}
-      </View>
+    <SafeAreaView className="bg-brand-lighter w-full h-full">
       {isLoading || !events ? (
         <View className="mt-16 flex items-center justify-center">
           <ActivityIndicator size="large" color="green" />
         </View>
       ) : filteredEvents && filteredEvents.length > 0 ? (
         <FlatList
+          ListHeaderComponent={() => {
+            return (
+              <>
+                <TextWrapper className="text-black text-2xl">Scheduled Events</TextWrapper>
+                <TextWrapper className="text-gray text-xl">
+                  {dayjs().format('dddd, MMMM D, YYYY')}
+                </TextWrapper>
+                <View className="w-full relative">
+                  <TextInput
+                    className="bg-white-600 px-4 py-4 rounded-full w-full mt-14 relative"
+                    placeholder="Search by Event"
+                    placeholderTextColor="#AAAAAA"
+                    value={search}
+                    onChange={(e) => {
+                      setSearch(e.nativeEvent.text);
+                    }}
+                    onSubmitEditing={() => {
+                      updateFilters();
+                      // reset the search
+                      setSearch('');
+                    }}
+                    cursorColor="green"></TextInput>
+                  <Pressable
+                    className="bg-brand absolute bottom-2 right-2 rounded-full p-3 flex items-center justify-center"
+                    onPress={() => {
+                      updateFilters();
+                      // reset the search
+                      setSearch('');
+                    }}>
+                    <SearchSVG color="white" />
+                  </Pressable>
+                </View>
+                <TextWrapper className="text-base mt-5">Upcoming Events</TextWrapper>
+                <View className="mt-5 flex flex-row items-center">
+                  {filters.map((filter) => (
+                    <Pressable
+                      key={filter.value}
+                      className={`px-4 py-2 rounded-full mr-2 ${
+                        filterUsed === filter.value ? 'bg-brand text-white' : 'bg-white'
+                      }`}
+                      onPress={() => {
+                        setFilterUsed(filter.value);
+                        updateFilters(filter.value);
+                      }}>
+                      <TextWrapper
+                        className={`text-sm ${
+                          filterUsed === filter.value ? 'text-white' : 'text-gray'
+                        }`}>
+                        {filter.name}
+                      </TextWrapper>
+                    </Pressable>
+                  ))}
+                </View>
+                <View className="h-5"></View>
+              </>
+            );
+          }}
+          ListFooterComponent={() => {
+            return <View className="h-16"></View>;
+          }}
           data={filteredEvents.length > 0 ? filteredEvents : events}
-          className="w-full mt-6"
+          className="w-full relative h-full px-6 py-10"
           ItemSeparatorComponent={() => {
             return <View className="h-10" />; // space between items
           }}
