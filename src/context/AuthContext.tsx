@@ -273,7 +273,6 @@ export function AuthProvider({ children }: PropsWithChildren) {
 
   useEffect(() => {
     // handle jwt expiry
-    console.log('AuthContext', authState);
     if (!authState.user || !authState.user.accessToken) return;
     let handle: NodeJS.Timeout | null = null;
     const { exp } = jwt_decode(authState.user.accessToken) as { exp: number };
