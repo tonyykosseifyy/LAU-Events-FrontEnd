@@ -71,37 +71,6 @@ const Credits = () => {
             </TextWrapper>
           </View>
         </View>
-        <View className="flex flex-col">
-          <TextWrapper className="text-black text-base mt-12">User Requirements</TextWrapper>
-          <TextWrapper
-            className="text-black text-sm mt-2 ml-5 underline"
-            onPress={() => {
-              Linking.openURL('https://www.linkedin.com/in/tiaelhelou');
-            }}>
-            - Tia El Helou
-          </TextWrapper>
-          <TextWrapper
-            className="text-black text-sm mt-2 ml-5 underline"
-            onPress={() => {
-              Linking.openURL('https://github.com/TaliaElHelou');
-            }}>
-            - Talia El Helou
-          </TextWrapper>
-          <TextWrapper
-            className="text-black text-sm mt-2 ml-5 underline"
-            onPress={() => {
-              Linking.openURL('https://github.com/Memz24');
-            }}>
-            - Maha Ziad
-          </TextWrapper>
-          <TextWrapper
-            className="text-black text-sm mt-2 ml-5 underline"
-            onPress={() => {
-              Linking.openURL('https://github.com/RanimeeKhoury');
-            }}>
-            - Ranime Khoury
-          </TextWrapper>
-        </View>
       </View>
     </SafeAreaView>
   );
