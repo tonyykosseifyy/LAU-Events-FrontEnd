@@ -67,8 +67,6 @@ Detailed Figma designs illustrate the user interface and user experience for bot
 
 ## Contact
 
-For more information or queries regarding the LAU Event App, please contact:
+For more information, please contact:
 
-- [Your Name] - [Your Email] - [Your LinkedIn](#) (Note: Replace placeholders with your actual contact information.)
-
-Feel free to contribute to the project by submitting pull requests or reporting issues. Your feedback is invaluable in improving the LAU Event App.
+- [Tony Kosseify] - [tonyykosseifyy@gmail.com] 
