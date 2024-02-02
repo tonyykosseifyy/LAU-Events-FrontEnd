@@ -8,6 +8,12 @@ Experience the LAU Event App in action here: [Live App Link](#) (Note: Update th
 
 The LAU Event App is a comprehensive solution designed for the Lebanese American University community, facilitating seamless interaction with campus events. Catering to both students and administrators, this app offers functionalities ranging from event browsing and personal calendar integration for students to event management and analytics for administrators.
 
+## Design
+
+Detailed Figma designs illustrate the user interface and user experience for both students and administrators. The app includes a comprehensive list of pages tailored to each user type, ensuring intuitive navigation and interaction.
+
+
+
 ### Features for Students:
 
 - Secure login/logout functionality.
@@ -62,9 +68,6 @@ This will launch the Expo Developer Tools in your browser. You can then run the 
 - ![TypeScript](https://img.shields.io/badge/TypeScript-%23007ACC.svg?style=for-the-badge&logo=typescript&logoColor=white) 
 - ![Tailwind CSS](https://img.shields.io/badge/Tailwind_CSS-%2338B2AC.svg?style=for-the-badge&logo=tailwind-css&logoColor=white) 
 
-## Design
-
-Detailed Figma designs illustrate the user interface and user experience for both students and administrators. The app includes a comprehensive list of pages tailored to each user type, ensuring intuitive navigation and interaction.
 
 ## Contact
 
